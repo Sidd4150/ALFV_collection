@@ -20,6 +20,7 @@ model Figure {
   janCode        String?   @unique
   isWebExclusive Boolean   @default(false)
   isRerelease    Boolean   @default(false)
+  isThirdParty   Boolean   @default(false)
   version        String?
   description    String?
   accessories    String[]
@@ -71,6 +72,8 @@ model PriceSale {
   source      String
   condition   String?
   notes       String?
+  sourceUrl   String?
+  externalId  String?  @unique
   submittedBy String?
   createdAt   DateTime @default(now())
 

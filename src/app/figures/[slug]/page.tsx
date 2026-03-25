@@ -1,11 +1,12 @@
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
-import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { formatPrice, formatPriceJpy } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/server'
 import { getCollectionEntry } from '@/app/actions/collection'
 import { CollectionButton } from '@/components/CollectionButton'
+import { BackButton } from '@/components/BackButton'
+import { FigureImageGallery } from '@/components/FigureImageGallery'
 
 export default async function FigureDetailPage({
   params,
@@ -17,46 +18,19 @@ export default async function FigureDetailPage({
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const figure = await prisma.figure.findUnique({
-    where: { slug },
-    include: {
-      priceSales: {
-        orderBy: { saleDate: 'desc' },
-        take: 10,
-      },
-    },
-  })
+  const figure = await prisma.figure.findUnique({ where: { slug } })
 
   if (!figure) notFound()
 
   const existing = user ? await getCollectionEntry(figure.id) : null
 
-  const prices = figure.priceSales.map((s: { price: number }) => s.price)
-  const avgPrice = prices.length ? prices.reduce((a: number, b: number) => a + b, 0) / prices.length : null
-  const minPrice = prices.length ? Math.min(...prices) : null
-  const maxPrice = prices.length ? Math.max(...prices) : null
-
   return (
     <div className="min-h-screen">
       <div className="max-w-5xl mx-auto px-4 py-10">
+        <BackButton />
         <div className="grid md:grid-cols-2 gap-10">
           {/* Image */}
-          <div className="bg-muted border border-border rounded-2xl aspect-square relative overflow-hidden">
-            {figure.images[0] ? (
-              <Image
-                src={figure.images[0]}
-                alt={figure.name}
-                fill
-                className="object-cover rounded-2xl"
-                sizes="(max-width: 768px) 100vw, 50vw"
-                priority
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <p className="text-muted-foreground text-sm">No image yet</p>
-              </div>
-            )}
-          </div>
+          <FigureImageGallery images={figure.images} name={figure.name} />
 
           {/* Details */}
           <div>
@@ -65,6 +39,7 @@ export default async function FigureDetailPage({
               {figure.arc && <Badge variant="outline">{figure.arc}</Badge>}
               {figure.isWebExclusive && <Badge variant="outline" className="border-yellow-500 text-yellow-600 dark:text-yellow-400">Web Exclusive</Badge>}
               {figure.isRerelease && <Badge variant="outline" className="border-blue-500 text-blue-600 dark:text-blue-400">Re-release</Badge>}
+              {figure.isThirdParty && <Badge variant="outline" className="border-purple-500 text-purple-600 dark:text-purple-400">3rd Party</Badge>}
             </div>
 
             <h1 className="text-3xl font-black mb-2">{figure.name}</h1>
@@ -82,7 +57,7 @@ export default async function FigureDetailPage({
             {/* Pricing */}
             <div className="bg-card border border-border rounded-xl p-5 mb-6">
               <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Pricing</h2>
-              <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs text-muted-foreground">MSRP (USD)</p>
                   <p className="text-xl font-bold">{figure.msrp ? formatPrice(figure.msrp) : '—'}</p>
@@ -92,25 +67,6 @@ export default async function FigureDetailPage({
                   <p className="text-xl font-bold">{figure.msrpJpy ? formatPriceJpy(figure.msrpJpy) : '—'}</p>
                 </div>
               </div>
-              {avgPrice !== null && (
-                <div className="grid grid-cols-3 gap-3 border-t border-border pt-4">
-                  <div className="text-center">
-                    <p className="text-xs text-muted-foreground">Low</p>
-                    <p className="font-bold text-green-600 dark:text-green-400">{formatPrice(minPrice!)}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-xs text-muted-foreground">Avg</p>
-                    <p className="font-bold text-orange-500">{formatPrice(avgPrice)}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-xs text-muted-foreground">High</p>
-                    <p className="font-bold text-red-600 dark:text-red-400">{formatPrice(maxPrice!)}</p>
-                  </div>
-                </div>
-              )}
-              {avgPrice === null && (
-                <p className="text-muted-foreground text-sm border-t border-border pt-4">No market sales reported yet.</p>
-              )}
             </div>
 
             {/* Accessories */}

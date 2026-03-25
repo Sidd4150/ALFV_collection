@@ -14,7 +14,7 @@ type FigureRow = {
   images: string[]
 }
 
-export function ImageUploadRow({ figure }: { figure: FigureRow }) {
+export function ImageUploadRow({ figure, editSlot }: { figure: FigureRow; editSlot?: React.ReactNode }) {
   const [expanded, setExpanded] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
@@ -53,7 +53,7 @@ export function ImageUploadRow({ figure }: { figure: FigureRow }) {
   const hasImages = figure.images.length > 0
 
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden">
+    <div>
       {/* Header row */}
       <div
         className="flex items-center gap-4 p-4 cursor-pointer hover:bg-muted/40 transition-colors"
@@ -99,6 +99,8 @@ export function ImageUploadRow({ figure }: { figure: FigureRow }) {
           <Upload className="h-3.5 w-3.5" />
           {isPending ? 'Uploading…' : 'Upload'}
         </Button>
+
+        {editSlot}
 
         <input
           ref={inputRef}

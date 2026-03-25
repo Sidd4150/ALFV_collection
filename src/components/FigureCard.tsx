@@ -33,6 +33,9 @@ export function FigureCard({ figure }: { figure: Figure }) {
             {figure.isRerelease && (
               <Badge className="text-[10px] px-1 py-0 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-400 border-0">Re-release</Badge>
             )}
+            {figure.isThirdParty && (
+              <Badge className="text-[10px] px-1 py-0 bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-400 border-0">3rd Party</Badge>
+            )}
           </div>
           <p className="text-xs text-muted-foreground mb-0.5">{figure.character}</p>
           <p className="text-sm font-bold leading-tight group-hover:text-orange-500 transition-colors line-clamp-2">{figure.name}</p>
