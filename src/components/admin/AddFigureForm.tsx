@@ -65,6 +65,16 @@ export function AddFigureForm() {
 
   return (
     <div className="bg-card border border-border rounded-xl p-6 mb-6">
+      {/* File input lives outside the form so it isn't picked up by new FormData(form) */}
+      <input
+        ref={imageInputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        className="hidden"
+        onChange={handleImageChange}
+      />
+
       <div className="flex items-center justify-between mb-5">
         <h2 className="font-bold text-lg">Add Figure</h2>
         <button onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground">
@@ -151,14 +161,6 @@ export function AddFigureForm() {
             >
               <ImagePlus className="h-5 w-5" />
             </button>
-            <input
-              ref={imageInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              className="hidden"
-              onChange={handleImageChange}
-            />
           </div>
         </div>
 

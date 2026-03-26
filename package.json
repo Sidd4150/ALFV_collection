@@ -11,7 +11,8 @@
     "sync:ebay": "npx tsx scripts/sync-ebay-prices.ts",
     "fetch:youtube": "npx tsx scripts/fetch-youtube-figures.ts",
     "parse:youtube": "npx tsx scripts/parse-youtube-figures.ts",
-    "import:youtube": "npx tsx scripts/import-youtube-figures.ts"
+    "import:youtube": "npx tsx scripts/import-youtube-figures.ts",
+    "scrape:ebay": "npx tsx scripts/scrape-ebay-prices.ts"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -24,6 +25,7 @@
     "@supabase/auth-helpers-nextjs": "^0.15.0",
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.99.3",
+    "cheerio": "^1.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^17.3.1",
@@ -31,6 +33,7 @@
     "next": "16.2.1",
     "next-themes": "^0.4.6",
     "pg": "^8.20.0",
+    "playwright": "^1.58.2",
     "prisma": "^7.5.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
