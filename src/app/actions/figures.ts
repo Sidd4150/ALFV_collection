@@ -2,6 +2,15 @@
 
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
+import { createClient } from '@/lib/supabase/server'
+
+async function requireAdmin() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  const adminEmail = process.env.ADMIN_EMAIL
+  if (!adminEmail || user.email !== adminEmail) throw new Error('Not authorized')
+}
 
 function toSlug(name: string): string {
   return name
@@ -13,6 +22,7 @@ function toSlug(name: string): string {
 }
 
 export async function createFigure(formData: FormData) {
+  await requireAdmin()
   const name = (formData.get('name') as string).trim()
   const character = (formData.get('character') as string).trim()
   const series = (formData.get('series') as string).trim()
@@ -59,6 +69,7 @@ export async function createFigure(formData: FormData) {
 }
 
 export async function updateFigure(id: string, formData: FormData) {
+  await requireAdmin()
   const name = (formData.get('name') as string).trim()
   const character = (formData.get('character') as string).trim()
   const series = (formData.get('series') as string).trim()
@@ -97,6 +108,7 @@ export async function updateFigure(id: string, formData: FormData) {
 }
 
 export async function deleteFigure(id: string) {
+  await requireAdmin()
   const figure = await prisma.figure.findUnique({ where: { id }, select: { slug: true } })
   if (!figure) throw new Error('Figure not found.')
 
