@@ -3,14 +3,10 @@ import { prisma } from '@/lib/prisma'
 import { FigureCard } from '@/components/FigureCard'
 import { CatalogFilters } from '@/components/CatalogFilters'
 import type { Figure } from '@/generated/prisma'
-import { cacheTag, cacheLife } from 'next/cache'
 
 type Params = { character?: string; arc?: string; exclusive?: string; year?: string; sort?: string; search?: string; thirdParty?: string }
 
 async function CatalogContent({ searchParams }: { searchParams: Promise<Params> }) {
-  'use cache'
-  cacheTag('figures')
-  cacheLife('minutes')
   const params = await searchParams
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
