@@ -1,3 +1,4 @@
+import { connection } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { ImageUploadRow } from '@/components/admin/ImageUploadRow'
 import { AddFigureForm } from '@/components/admin/AddFigureForm'
@@ -5,6 +6,7 @@ import { EditFigureForm } from '@/components/admin/EditFigureForm'
 import { DeleteFigureButton } from '@/components/admin/DeleteFigureButton'
 
 export default async function AdminPage() {
+  await connection()
   const figures = await prisma.figure.findMany({
     orderBy: [{ character: 'asc' }, { releaseDate: 'asc' }],
     select: {
