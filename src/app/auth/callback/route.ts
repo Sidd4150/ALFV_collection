@@ -6,7 +6,9 @@ export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
   const type = requestUrl.searchParams.get('type')
-  const redirectTo = requestUrl.searchParams.get('redirectTo') ?? '/'
+  const rawRedirect = requestUrl.searchParams.get('redirectTo') ?? '/'
+  // Only allow relative paths — prevent open redirect to external URLs
+  const redirectTo = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/'
 
   if (code) {
     const cookieStore = await cookies()

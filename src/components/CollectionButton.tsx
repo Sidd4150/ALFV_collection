@@ -36,6 +36,7 @@ export function CollectionButton({
   const [selectedStatus, setSelectedStatus] = useState<CollectionStatus | null>(null)
   const [purchasePrice, setPurchasePrice] = useState(existing?.purchasePrice?.toString() ?? '')
   const [condition, setCondition] = useState(existing?.condition ?? '')
+  const [quantity, setQuantity] = useState(existing?.quantity ?? 1)
 
   if (!isLoggedIn) {
     return (
@@ -55,7 +56,9 @@ export function CollectionButton({
         figureId,
         status,
         purchasePrice ? parseFloat(purchasePrice) : undefined,
-        condition || undefined
+        condition || undefined,
+        undefined,
+        quantity
       )
       setOpen(false)
     })
@@ -125,6 +128,22 @@ export function CollectionButton({
           value={condition}
           onChange={(e) => setCondition(e.target.value)}
         />
+      </div>
+      <div className="flex items-center gap-3">
+        <span className="text-sm text-muted-foreground">Quantity</span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+            className="w-7 h-7 rounded-md border border-border flex items-center justify-center text-sm hover:border-orange-500 transition-colors"
+          >−</button>
+          <span className="text-sm font-bold w-4 text-center">{quantity}</span>
+          <button
+            type="button"
+            onClick={() => setQuantity((q) => q + 1)}
+            className="w-7 h-7 rounded-md border border-border flex items-center justify-center text-sm hover:border-orange-500 transition-colors"
+          >+</button>
+        </div>
       </div>
 
       <div className="flex gap-2">

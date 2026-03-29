@@ -32,6 +32,7 @@ export async function createFigure(formData: FormData) {
   const isWebExclusive = formData.get('isWebExclusive') === 'true'
   const isRerelease = formData.get('isRerelease') === 'true'
   const isThirdParty = formData.get('isThirdParty') === 'true'
+  const accessories = formData.getAll('accessories').map((a) => (a as string).trim()).filter(Boolean)
 
   if (!name || !character || !series) {
     throw new Error('Name, character, and series are required.')
@@ -57,13 +58,13 @@ export async function createFigure(formData: FormData) {
       isWebExclusive,
       isRerelease,
       isThirdParty,
-      accessories: [],
+      accessories,
       images: [],
     },
   })
 
   revalidatePath('/admin')
-  revalidatePath('/catalog')
+  revalidatePath('/')
 
   return figure.id
 }
@@ -103,7 +104,7 @@ export async function updateFigure(id: string, formData: FormData) {
   })
 
   revalidatePath('/admin')
-  revalidatePath('/catalog')
+  revalidatePath('/')
   revalidatePath(`/figures/${figure.slug}`)
 }
 
@@ -115,6 +116,6 @@ export async function deleteFigure(id: string) {
   await prisma.figure.delete({ where: { id } })
 
   revalidatePath('/admin')
-  revalidatePath('/catalog')
+  revalidatePath('/')
   revalidatePath(`/figures/${figure.slug}`)
 }

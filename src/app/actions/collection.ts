@@ -26,14 +26,15 @@ export async function upsertCollection(
   status: CollectionStatus,
   purchasePrice?: number,
   condition?: string,
-  notes?: string
+  notes?: string,
+  quantity?: number
 ) {
   const dbUser = await getOrCreateUser()
 
   await prisma.userCollection.upsert({
     where: { userId_figureId: { userId: dbUser.id, figureId } },
-    update: { status, purchasePrice: purchasePrice ?? null, condition: condition ?? null, notes: notes ?? null },
-    create: { userId: dbUser.id, figureId, status, purchasePrice: purchasePrice ?? null, condition: condition ?? null, notes: notes ?? null },
+    update: { status, purchasePrice: purchasePrice ?? null, condition: condition ?? null, notes: notes ?? null, quantity: quantity ?? 1 },
+    create: { userId: dbUser.id, figureId, status, purchasePrice: purchasePrice ?? null, condition: condition ?? null, notes: notes ?? null, quantity: quantity ?? 1 },
   })
 
   revalidatePath('/collection')

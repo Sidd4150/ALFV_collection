@@ -1,64 +1,100 @@
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Suspense } from 'react'
+import { prisma } from '@/lib/prisma'
+import { FigureCard } from '@/components/FigureCard'
+import { CatalogFilters } from '@/components/CatalogFilters'
+import type { Figure } from '@/generated/prisma'
+import { cacheTag, cacheLife } from 'next/cache'
 
-export default function HomePage() {
+type Params = { character?: string; arc?: string; exclusive?: string; year?: string; sort?: string; search?: string; thirdParty?: string }
+
+async function CatalogContent({ searchParams }: { searchParams: Promise<Params> }) {
+  'use cache'
+  cacheTag('figures')
+  cacheLife('minutes')
+  const params = await searchParams
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const where: any = {}
+  if (params.character) where.character = params.character
+  if (params.arc) where.arc = params.arc
+  if (params.exclusive === 'true') where.isWebExclusive = true
+  if (params.thirdParty === 'true') where.isThirdParty = true
+  if (params.thirdParty === 'false') where.isThirdParty = false
+  if (params.year) {
+    const y = parseInt(params.year)
+    where.releaseDate = {
+      gte: new Date(`${y}-01-01`),
+      lt: new Date(`${y + 1}-01-01`),
+    }
+  }
+  if (params.search) {
+    where.OR = [
+      { name: { contains: params.search, mode: 'insensitive' } },
+      { character: { contains: params.search, mode: 'insensitive' } },
+    ]
+  }
+
+  const orderBy =
+    params.sort === 'price-asc' ? { msrp: 'asc' as const } :
+    params.sort === 'price-desc' ? { msrp: 'desc' as const } :
+    params.sort === 'date-asc' ? { releaseDate: 'asc' as const } :
+    { releaseDate: 'desc' as const }
+
+  const [figures, characters, arcs, datesWithYear] = await Promise.all([
+    prisma.figure.findMany({ where, orderBy }),
+    prisma.figure.findMany({
+      select: { character: true },
+      distinct: ['character'],
+      orderBy: { character: 'asc' },
+    }),
+    prisma.figure.findMany({
+      select: { arc: true },
+      distinct: ['arc'],
+      orderBy: { arc: 'asc' },
+    }),
+    prisma.figure.findMany({
+      select: { releaseDate: true },
+      where: { releaseDate: { not: null } },
+    }),
+  ])
+  const years = [...new Set(datesWithYear.map((f: { releaseDate: Date | null }) => new Date(f.releaseDate!).getFullYear()))].sort() as number[]
+
   return (
-    <main className="min-h-screen">
-      {/* Hero */}
-      <section className="relative flex flex-col items-center justify-center min-h-[70vh] px-4 text-center bg-gradient-to-b from-muted/50 to-background">
-        <Badge variant="outline" className="mb-6 border-orange-500 text-orange-500 text-sm px-4 py-1">
-          S.H. Figuarts Dragon Ball — Now Tracking
-        </Badge>
-        <h1 className="text-5xl sm:text-6xl md:text-7xl font-black mb-6 tracking-tight">
-          Action Legends
-          <br />
-          <span className="text-orange-500">Figure Vault</span>
-        </h1>
-        <p className="text-muted-foreground text-lg md:text-xl max-w-xl mb-10">
-          Track your collection, discover market prices, and catalog every official S.H. Figuarts Dragon Ball figure.
-        </p>
-        <div className="flex gap-4 flex-wrap justify-center">
-          <Button asChild size="lg" className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-8">
-            <Link href="/catalog">Browse Catalog</Link>
-          </Button>
-          <Button asChild size="lg" variant="outline">
-            <Link href="/collection">My Collection</Link>
-          </Button>
-        </div>
-      </section>
-
-      {/* Stats bar */}
-      <section className="border-y border-border py-8">
-        <div className="max-w-5xl mx-auto grid grid-cols-3 gap-6 text-center px-4">
-          <div>
-            <p className="text-3xl font-black text-orange-500">33</p>
-            <p className="text-muted-foreground text-sm mt-1">Figures Cataloged</p>
-          </div>
-          <div>
-            <p className="text-3xl font-black text-orange-500">1</p>
-            <p className="text-muted-foreground text-sm mt-1">Line Tracked</p>
-          </div>
-          <div>
-            <p className="text-3xl font-black text-orange-500">Free</p>
-            <p className="text-muted-foreground text-sm mt-1">Always</p>
+    <>
+      <div className="mb-8">
+        <h1 className="text-3xl font-black mb-1">SHF Dragon Ball Catalog</h1>
+        <p className="text-muted-foreground">{figures.length} figures</p>
+      </div>
+      <div className="flex flex-col md:flex-row gap-8">
+        <CatalogFilters
+          characters={characters.map((c: { character: string }) => c.character)}
+          arcs={arcs.map((a: { arc: string | null }) => a.arc).filter((arc): arc is string => arc !== null)}
+          years={years}
+        />
+        <div className="flex-1">
+          <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {figures.map((figure: Figure) => (
+              <FigureCard key={figure.id} figure={figure} />
+            ))}
           </div>
         </div>
-      </section>
+      </div>
+    </>
+  )
+}
 
-      {/* Feature cards */}
-      <section className="max-w-5xl mx-auto px-4 py-20 grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {[
-          { title: 'Full Catalog', desc: 'Every official SHF Dragon Ball figure with release dates, accessories, and MSRP.' },
-          { title: 'Track Collection', desc: 'Mark figures as Owned, Wishlisted, or For Sale. Track what you paid vs. market value.' },
-          { title: 'Market Prices', desc: 'Community-reported sale prices. Know the real value of every figure.' },
-        ].map((f) => (
-          <div key={f.title} className="bg-card border border-border rounded-xl p-6">
-            <h3 className="text-lg font-bold mb-2">{f.title}</h3>
-            <p className="text-muted-foreground text-sm">{f.desc}</p>
-          </div>
-        ))}
-      </section>
-    </main>
+export default function CatalogPage({
+  searchParams,
+}: {
+  searchParams: Promise<Params>
+}) {
+  return (
+    <div className="min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 py-10">
+        <Suspense fallback={<div className="text-muted-foreground text-sm">Loading...</div>}>
+          <CatalogContent searchParams={searchParams} />
+        </Suspense>
+      </div>
+    </div>
   )
 }

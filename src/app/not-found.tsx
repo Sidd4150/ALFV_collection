@@ -9,7 +9,7 @@ export default function NotFound() {
         <p className="text-xl font-bold mb-2">Figure not found</p>
         <p className="text-gray-400 mb-8">This figure may have escaped from the vault.</p>
         <Button asChild className="bg-orange-500 hover:bg-orange-600">
-          <Link href="/catalog">Back to Catalog</Link>
+          <Link href="/">Back to Catalog</Link>
         </Button>
       </div>
     </div>

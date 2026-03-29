@@ -43,7 +43,7 @@ export async function uploadFigureImage(figureId: string, formData: FormData) {
   })
 
   revalidatePath('/admin')
-  revalidatePath('/catalog')
+  revalidatePath('/')
   revalidatePath('/figures/[slug]', 'page')
 }
 
@@ -67,6 +67,6 @@ export async function deleteFigureImage(figureId: string, imageUrl: string) {
   })
 
   revalidatePath('/admin')
-  revalidatePath('/catalog')
+  revalidatePath('/')
   revalidatePath('/figures/[slug]', 'page')
 }

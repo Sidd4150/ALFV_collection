@@ -7,6 +7,7 @@ import { getCollectionEntry } from '@/app/actions/collection'
 import { CollectionButton } from '@/components/CollectionButton'
 import { BackButton } from '@/components/BackButton'
 import { FigureImageGallery } from '@/components/FigureImageGallery'
+import { PriceChart } from '@/components/PriceChart'
 
 export default async function FigureDetailPage({
   params,
@@ -22,7 +23,19 @@ export default async function FigureDetailPage({
 
   if (!figure) notFound()
 
-  const existing = user ? await getCollectionEntry(figure.id) : null
+  const [existing, priceSales] = await Promise.all([
+    user ? getCollectionEntry(figure.id) : Promise.resolve(null),
+    prisma.priceSale.findMany({
+      where: { figureId: figure.id },
+      orderBy: { saleDate: 'asc' },
+      select: { price: true, saleDate: true, sourceUrl: true },
+    }),
+  ])
+
+  const prices = priceSales.map((s) => s.price)
+  const medianPrice = prices.length > 0
+    ? (() => { const sorted = [...prices].sort((a, b) => a - b); const mid = Math.floor(sorted.length / 2); return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2 })()
+    : null
 
   return (
     <div className="min-h-screen">
@@ -57,7 +70,7 @@ export default async function FigureDetailPage({
             {/* Pricing */}
             <div className="bg-card border border-border rounded-xl p-5 mb-6">
               <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Pricing</h2>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
                   <p className="text-xs text-muted-foreground">MSRP (USD)</p>
                   <p className="text-xl font-bold">{figure.msrp ? formatPrice(figure.msrp) : '—'}</p>
@@ -66,8 +79,41 @@ export default async function FigureDetailPage({
                   <p className="text-xs text-muted-foreground">MSRP (JPY)</p>
                   <p className="text-xl font-bold">{figure.msrpJpy ? formatPriceJpy(figure.msrpJpy) : '—'}</p>
                 </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Market Price</p>
+                  <p className="text-xl font-bold text-orange-500">{medianPrice ? formatPrice(medianPrice) : '—'}</p>
+                </div>
               </div>
+              {medianPrice && (
+                <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border">
+                  ⚠️ Market price is an estimate based on recent eBay sold listings. Always do your own research before buying or selling.
+                </p>
+              )}
             </div>
+
+            {/* Price chart */}
+            {priceSales.length > 0 && (
+              <div className="mb-6">
+                <PriceChart sales={priceSales.map((s) => ({ price: s.price, saleDate: s.saleDate.toISOString() }))} />
+              </div>
+            )}
+
+            {/* Recent eBay sales */}
+            {priceSales.filter((s) => s.sourceUrl).length > 0 && (
+              <div className="bg-card border border-border rounded-xl p-5 mb-6">
+                <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Recent eBay Sales</h2>
+                <ul className="space-y-2">
+                  {[...priceSales].reverse().filter((s) => s.sourceUrl).slice(0, 3).map((s, i) => (
+                    <li key={i} className="flex items-center justify-between text-sm">
+                      <a href={s.sourceUrl!} target="_blank" rel="noopener noreferrer" className="text-orange-500 hover:underline truncate mr-4">
+                        {new Date(s.saleDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </a>
+                      <span className="font-bold shrink-0">{formatPrice(s.price)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Accessories */}
             {figure.accessories.length > 0 && (

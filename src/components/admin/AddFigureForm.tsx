@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition, useRef } from 'react'
+import { useState, useTransition, useRef, useCallback } from 'react'
 import { Plus, X, ImagePlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,8 +14,18 @@ export function AddFigureForm() {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
   const [imageFiles, setImageFiles] = useState<File[]>([])
+  const [accessories, setAccessories] = useState<string[]>([])
+  const [accessoryInput, setAccessoryInput] = useState('')
   const formRef = useRef<HTMLFormElement>(null)
   const imageInputRef = useRef<HTMLInputElement>(null)
+
+  const addAccessory = useCallback(() => {
+    const val = accessoryInput.trim()
+    if (val && !accessories.includes(val)) {
+      setAccessories((prev) => [...prev, val])
+    }
+    setAccessoryInput('')
+  }, [accessoryInput, accessories])
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? [])
@@ -44,6 +54,8 @@ export function AddFigureForm() {
 
         formRef.current?.reset()
         setImageFiles([])
+        setAccessories([])
+        setAccessoryInput('')
         setOpen(false)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to create figure')
@@ -131,6 +143,39 @@ export function AddFigureForm() {
             <input type="checkbox" name="isThirdParty" value="true" className="rounded" />
             3rd Party
           </label>
+        </div>
+
+        {/* Hidden inputs for accessories */}
+        {accessories.map((acc, i) => (
+          <input key={i} type="hidden" name="accessories" value={acc} />
+        ))}
+
+        {/* Accessories */}
+        <div>
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-2">Accessories</label>
+          <div className="flex gap-2 mb-2">
+            <Input
+              value={accessoryInput}
+              onChange={(e) => setAccessoryInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addAccessory() } }}
+              placeholder="e.g. Interchangeable hands"
+            />
+            <Button type="button" variant="outline" onClick={addAccessory}>
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+          {accessories.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {accessories.map((acc, i) => (
+                <span key={i} className="flex items-center gap-1 bg-muted text-sm px-2 py-1 rounded-md">
+                  {acc}
+                  <button type="button" onClick={() => setAccessories((prev) => prev.filter((_, j) => j !== i))}>
+                    <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Image upload */}

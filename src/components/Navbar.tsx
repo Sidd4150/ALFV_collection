@@ -9,7 +9,7 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { NavbarUser } from '@/components/NavbarUser'
 
 const navLinks = [
-  { href: '/catalog', label: 'Catalog' },
+  { href: '/', label: 'Catalog' },
   { href: '/collection', label: 'Collection' },
   { href: '/submit-price', label: 'Submit Price' },
 ]

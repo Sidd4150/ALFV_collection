@@ -52,6 +52,7 @@ model UserCollection {
   userId        String
   figureId      String
   status        CollectionStatus
+  quantity      Int              @default(1)
   purchasePrice Float?
   condition     String?
   notes         String?

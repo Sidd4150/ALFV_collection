@@ -28,7 +28,7 @@ export function CatalogFilters({
     } else {
       params.set(key, value)
     }
-    router.push(`/catalog?${params.toString()}`)
+    router.push(`/?${params.toString()}`)
   }
 
   const handleSearch = (e: React.FormEvent) => {
@@ -39,7 +39,7 @@ export function CatalogFilters({
     } else {
       params.delete('search')
     }
-    router.push(`/catalog?${params.toString()}`)
+    router.push(`/?${params.toString()}`)
   }
 
   const filterContent = (
@@ -137,7 +137,7 @@ export function CatalogFilters({
         variant="ghost"
         size="sm"
         className="w-full text-muted-foreground hover:text-foreground"
-        onClick={() => { setSearch(''); router.push('/catalog') }}
+        onClick={() => { setSearch(''); router.push('/') }}
       >
         Clear filters
       </Button>
