@@ -90,7 +90,7 @@ export function PriceChart({ sales, label = 'Market Price History' }: { sales: {
             }}
             labelStyle={{ color: 'hsl(var(--foreground))' }}
             itemStyle={{ color: 'hsl(var(--foreground))' }}
-            formatter={(v: number) => [`$${v}`, 'Median price']}
+            formatter={(v) => [`$${Number(v)}`, 'Median price']}
           />
           <Line
             type="monotone"
