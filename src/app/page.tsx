@@ -30,14 +30,20 @@ async function CatalogContent({ searchParams }: { searchParams: Promise<Params> 
     ]
   }
 
+  const isMarketSort = params.sort === 'market-asc' || params.sort === 'market-desc'
+
   const orderBy =
     params.sort === 'price-asc' ? { msrp: 'asc' as const } :
     params.sort === 'price-desc' ? { msrp: 'desc' as const } :
     params.sort === 'date-asc' ? { releaseDate: 'asc' as const } :
     { releaseDate: 'desc' as const }
 
-  const [figures, characters, arcs, datesWithYear] = await Promise.all([
-    prisma.figure.findMany({ where, orderBy }),
+  const [figuresRaw, characters, arcs, datesWithYear] = await Promise.all([
+    prisma.figure.findMany({
+      where,
+      orderBy: isMarketSort ? undefined : orderBy,
+      include: isMarketSort ? { priceSales: { select: { price: true } } } : undefined,
+    }),
     prisma.figure.findMany({
       select: { character: true },
       distinct: ['character'],
@@ -55,11 +61,29 @@ async function CatalogContent({ searchParams }: { searchParams: Promise<Params> 
   ])
   const years = [...new Set(datesWithYear.map((f: { releaseDate: Date | null }) => new Date(f.releaseDate!).getFullYear()))].sort() as number[]
 
+  const median = (arr: number[]) => {
+    if (!arr.length) return null
+    const s = [...arr].sort((a, b) => a - b)
+    const m = Math.floor(s.length / 2)
+    return s.length % 2 !== 0 ? s[m] : (s[m - 1] + s[m]) / 2
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let figures: any[] = figuresRaw
+  if (params.sort === 'market-asc' || params.sort === 'market-desc') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    figures = [...figuresRaw].sort((a: any, b: any) => {
+      const aPrice = median(a.priceSales?.map((s: { price: number }) => s.price) ?? []) ?? -1
+      const bPrice = median(b.priceSales?.map((s: { price: number }) => s.price) ?? []) ?? -1
+      return params.sort === 'market-asc' ? aPrice - bPrice : bPrice - aPrice
+    })
+  }
+
   return (
     <>
       <div className="mb-8">
         <h1 className="text-3xl font-black mb-1">SHF Dragon Ball Catalog</h1>
-        <p className="text-muted-foreground">{figures.length} figures</p>
+        <p className="text-muted-foreground">{figures.length} {figures.length === 1 ? 'figure' : 'figures'}</p>
       </div>
       <div className="flex flex-col md:flex-row gap-8">
         <CatalogFilters

@@ -56,8 +56,10 @@ export function CatalogFilters({
           <SelectContent>
             <SelectItem value="date-asc">Release Date (Oldest)</SelectItem>
             <SelectItem value="date-desc">Release Date (Newest)</SelectItem>
-            <SelectItem value="price-asc">Price (Low to High)</SelectItem>
-            <SelectItem value="price-desc">Price (High to Low)</SelectItem>
+            <SelectItem value="price-asc">MSRP (Low to High)</SelectItem>
+            <SelectItem value="price-desc">MSRP (High to Low)</SelectItem>
+            <SelectItem value="market-asc">Market Price (Low to High)</SelectItem>
+            <SelectItem value="market-desc">Market Price (High to Low)</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -133,14 +135,12 @@ export function CatalogFilters({
         </Select>
       </div>
 
-      <Button
-        variant="ghost"
-        size="sm"
-        className="w-full text-muted-foreground hover:text-foreground"
+      <button
+        className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors pt-1"
         onClick={() => { setSearch(''); router.push('/') }}
       >
         Clear filters
-      </Button>
+      </button>
     </div>
   )
 

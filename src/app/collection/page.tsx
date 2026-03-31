@@ -14,8 +14,8 @@ const STATUS_LABELS = {
 } as const
 
 const STATUS_COLORS = {
-  OWNED: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-400',
-  WISHLIST: 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-400',
+  OWNED: 'bg-green-500 text-white',
+  WISHLIST: 'bg-yellow-500 text-white',
 } as const
 
 export default async function CollectionPage() {
@@ -37,7 +37,6 @@ export default async function CollectionPage() {
   const totalValue = owned.reduce((sum, e) => sum + (e.figure.msrp ?? 0) * e.quantity, 0)
   const displayName = user.user_metadata?.username ?? user.email?.split('@')[0] ?? 'Collector'
 
-  // Fetch all price sales for owned figures
   const ownedFigureIds = owned.map((e) => e.figureId)
   const priceSales = ownedFigureIds.length > 0
     ? await prisma.priceSale.findMany({
@@ -47,14 +46,12 @@ export default async function CollectionPage() {
       })
     : []
 
-  // Median helper
   const median = (arr: number[]) => {
     const s = [...arr].sort((a, b) => a - b)
     const m = Math.floor(s.length / 2)
     return s.length % 2 !== 0 ? s[m] : (s[m - 1] + s[m]) / 2
   }
 
-  // Market value: sum of per-figure medians
   const salesByFigure = new Map<string, number[]>()
   for (const s of priceSales) {
     if (!salesByFigure.has(s.figureId)) salesByFigure.set(s.figureId, [])
@@ -62,7 +59,6 @@ export default async function CollectionPage() {
   }
   const marketValue = Array.from(salesByFigure.values()).reduce((sum, prices) => sum + median(prices), 0)
 
-  // Build chart data: per month, sum of median prices across all owned figures with data that month
   const byMonth = new Map<string, Map<string, number[]>>()
   for (const s of priceSales) {
     const month = s.saleDate.toISOString().slice(0, 7)
@@ -79,8 +75,10 @@ export default async function CollectionPage() {
     }))
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-5xl mx-auto px-4 py-10">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-7xl mx-auto px-4 py-10">
+
+        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-black mb-1">{displayName}&apos;s Vault</h1>
           <p className="text-muted-foreground">{entries.length} figures tracked</p>
@@ -90,12 +88,12 @@ export default async function CollectionPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
           {[
             { label: 'Owned', value: owned.length, color: 'text-green-500' },
-            { label: 'Wishlisted', value: wishlist.length, color: 'text-orange-500' },
+            { label: 'Wishlisted', value: wishlist.length, color: 'text-yellow-500' },
             { label: 'MSRP Value', value: formatPrice(totalValue), color: 'text-foreground' },
-            { label: 'Market Value', value: marketValue > 0 ? formatPrice(marketValue) : '—', color: 'text-orange-500' },
+            { label: 'Market Value', value: marketValue > 0 ? formatPrice(marketValue) : '—', color: '' , style: { color: '#4a1258' } },
           ].map((stat) => (
             <div key={stat.label} className="bg-card border border-border rounded-xl p-4 text-center">
-              <p className={`text-2xl font-black ${stat.color}`}>{stat.value}</p>
+              <p className={`text-2xl font-black ${stat.color}`} style={(stat as { style?: React.CSSProperties }).style}>{stat.value}</p>
               <p className="text-muted-foreground text-xs mt-1">{stat.label}</p>
             </div>
           ))}
@@ -103,11 +101,13 @@ export default async function CollectionPage() {
 
         {/* Market value chart */}
         {chartSales.length > 0 && (
-          <div className="mb-10">
+          <div className="bg-card border border-border rounded-xl p-5 mb-10">
+            <h2 className="text-base font-bold mb-4">Collection Market Value Over Time</h2>
             <PriceChart sales={chartSales} label="Total Collection Market Value" />
           </div>
         )}
 
+        {/* Empty state */}
         {entries.length === 0 ? (
           <div className="bg-card border border-border rounded-xl p-10 text-center">
             <p className="text-4xl mb-4">📦</p>
@@ -115,72 +115,131 @@ export default async function CollectionPage() {
             <p className="text-muted-foreground text-sm mb-6">
               Browse the catalog and add figures to start tracking.
             </p>
-            <Button asChild className="bg-orange-500 hover:bg-orange-600 text-white font-bold">
+            <Button asChild className="text-white font-bold" style={{ backgroundColor: '#4a1258' }}>
               <Link href="/">Browse Catalog</Link>
             </Button>
           </div>
         ) : (
-          <div className="space-y-2">
-            {entries.map((entry) => (
-              <Link key={entry.id} href={`/figures/${entry.figure.slug}`}>
-                <div className="bg-card border border-border rounded-xl p-5 flex items-center gap-5 hover:border-orange-500 transition-colors">
-                  {/* Image */}
-                  <div className="w-24 h-24 rounded-xl bg-muted shrink-0 relative overflow-hidden">
-                    {entry.figure.images[0] ? (
-                      <Image
-                        src={entry.figure.images[0]}
-                        alt={entry.figure.name}
-                        fill
-                        className="object-cover"
-                        sizes="96px"
-                      />
-                    ) : (
-                      <span className="absolute inset-0 flex items-center justify-center text-muted-foreground text-[10px]">No img</span>
-                    )}
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-muted-foreground">{entry.figure.character}</p>
-                    <p className="font-bold text-base leading-tight truncate mt-0.5">{entry.figure.name}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      {entry.quantity > 1 && (
-                        <span className="text-xs font-bold bg-orange-500 text-white rounded px-1.5 py-0.5">×{entry.quantity}</span>
-                      )}
-                      {entry.condition && (
-                        <p className="text-sm text-muted-foreground">{entry.condition}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Price paid */}
-                  <div className="text-right shrink-0 hidden sm:block">
-                    {entry.purchasePrice && (
-                      <>
-                        <p className="text-xs text-muted-foreground">Paid</p>
-                        <p className="text-base font-bold">{formatPrice(entry.purchasePrice)}</p>
-                      </>
-                    )}
-                    {!entry.purchasePrice && entry.figure.msrp && (
-                      <>
-                        <p className="text-xs text-muted-foreground">MSRP</p>
-                        <p className="text-base font-bold">{formatPrice(entry.figure.msrp)}</p>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Status badge */}
-                  {entry.status in STATUS_LABELS && (
-                    <Badge className={`shrink-0 border-0 text-sm px-3 py-1 ${STATUS_COLORS[entry.status as keyof typeof STATUS_COLORS]}`}>
-                      {STATUS_LABELS[entry.status as keyof typeof STATUS_LABELS]}
-                    </Badge>
-                  )}
+          <>
+            {/* Owned */}
+            {owned.length > 0 && (
+              <section className="mb-10">
+                <h2 className="text-xl font-black mb-4">Owned <span className="text-muted-foreground font-normal text-base">({owned.length})</span></h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4">
+                  {owned.map((entry) => (
+                    <FigureCard key={entry.id} entry={entry} salesByFigure={salesByFigure} median={median} />
+                  ))}
                 </div>
-              </Link>
-            ))}
-          </div>
+              </section>
+            )}
+
+            {/* Wishlist */}
+            {wishlist.length > 0 && (
+              <section>
+                <h2 className="text-xl font-black mb-4">Wishlist <span className="text-muted-foreground font-normal text-base">({wishlist.length})</span></h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4">
+                  {wishlist.map((entry) => (
+                    <FigureCard key={entry.id} entry={entry} salesByFigure={salesByFigure} median={median} />
+                  ))}
+                </div>
+              </section>
+            )}
+          </>
         )}
       </div>
     </div>
+  )
+}
+
+function FigureCard({
+  entry,
+  salesByFigure,
+  median,
+}: {
+  entry: {
+    id: string
+    status: string
+    quantity: number
+    purchasePrice: number | null
+    condition: string | null
+    figure: {
+      slug: string
+      name: string
+      character: string
+      series: string
+      images: string[]
+      msrp: number | null
+      isWebExclusive: boolean
+      isRerelease: boolean
+      isThirdParty: boolean
+    }
+    figureId: string
+  }
+  salesByFigure: Map<string, number[]>
+  median: (arr: number[]) => number
+}) {
+  const figureSales = salesByFigure.get(entry.figureId)
+  const marketPrice = figureSales ? median(figureSales) : null
+  const displayPrice = entry.purchasePrice ?? entry.figure.msrp
+
+  return (
+    <Link href={`/figures/${entry.figure.slug}`} className="group block">
+      <div className="bg-card border border-border rounded-xl overflow-hidden hover:border-[#4a1258] transition-colors">
+        {/* Image */}
+        <div className="relative aspect-square bg-muted overflow-hidden">
+          {entry.figure.images[0] ? (
+            <Image
+              src={entry.figure.images[0]}
+              alt={entry.figure.name}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-xs">No image</div>
+          )}
+          {/* Status badge overlay */}
+          <div className="absolute top-2 left-2 flex flex-col gap-1">
+            {entry.status in STATUS_LABELS && (
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_COLORS[entry.status as keyof typeof STATUS_COLORS]}`}>
+                {STATUS_LABELS[entry.status as keyof typeof STATUS_LABELS]}
+              </span>
+            )}
+            {entry.figure.isThirdParty && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500 text-white">3rd Party</span>
+            )}
+            {entry.figure.isWebExclusive && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-yellow-500 text-white">Web Excl.</span>
+            )}
+            {entry.figure.isRerelease && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500 text-white">Re-release</span>
+            )}
+          </div>
+          {entry.quantity > 1 && (
+            <div className="absolute top-2 right-2">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/70 text-white">×{entry.quantity}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Info */}
+        <div className="p-3">
+          <p className="text-xs text-muted-foreground truncate">{entry.figure.character}</p>
+          <p className="text-sm font-bold leading-tight mt-0.5 line-clamp-2">{entry.figure.name}</p>
+          <div className="mt-2 flex items-center justify-between gap-1">
+            {marketPrice ? (
+              <span className="text-sm font-black" style={{ color: '#4a1258' }}>{formatPrice(marketPrice)}</span>
+            ) : displayPrice ? (
+              <span className="text-sm font-bold">{formatPrice(displayPrice)}</span>
+            ) : (
+              <span className="text-xs text-muted-foreground">—</span>
+            )}
+            {entry.condition && (
+              <span className="text-[10px] text-muted-foreground border border-border rounded px-1.5 py-0.5 truncate">{entry.condition}</span>
+            )}
+          </div>
+        </div>
+      </div>
+    </Link>
   )
 }

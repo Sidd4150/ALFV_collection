@@ -4,6 +4,9 @@ import { ImageUploadRow } from '@/components/admin/ImageUploadRow'
 import { AddFigureForm } from '@/components/admin/AddFigureForm'
 import { EditFigureForm } from '@/components/admin/EditFigureForm'
 import { DeleteFigureButton } from '@/components/admin/DeleteFigureButton'
+import { FetchPricesButton } from '@/components/admin/FetchPricesButton'
+import { ClearPricesButton } from '@/components/admin/ClearPricesButton'
+import { RescrapeLowPricesButton } from '@/components/admin/RescrapeLowPricesButton'
 
 export default async function AdminPage() {
   await connection()
@@ -36,7 +39,10 @@ export default async function AdminPage() {
             {withImages} of {figures.length} figures have images
           </p>
         </div>
-        <AddFigureForm />
+        <div className="flex items-center gap-3 flex-wrap">
+          <RescrapeLowPricesButton />
+          <AddFigureForm />
+        </div>
       </div>
 
       <div className="space-y-3">
@@ -46,6 +52,8 @@ export default async function AdminPage() {
               figure={figure}
               editSlot={
                 <>
+                  <FetchPricesButton figureId={figure.id} />
+                  <ClearPricesButton figureId={figure.id} />
                   <EditFigureForm figure={{
                     ...figure,
                     releaseDate: figure.releaseDate ? figure.releaseDate.toISOString() : null,

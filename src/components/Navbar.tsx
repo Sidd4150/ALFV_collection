@@ -1,9 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { NavbarUser } from '@/components/NavbarUser'
@@ -11,7 +11,6 @@ import { NavbarUser } from '@/components/NavbarUser'
 const navLinks = [
   { href: '/', label: 'Catalog' },
   { href: '/collection', label: 'Collection' },
-  { href: '/submit-price', label: 'Submit Price' },
 ]
 
 export function Navbar() {
@@ -21,11 +20,9 @@ export function Navbar() {
     <nav className="border-b border-border bg-background sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3" onClick={() => setMobileOpen(false)}>
-          <span className="text-3xl font-black text-orange-500 tracking-tight">ALFV</span>
-          <Badge variant="outline" className="border-border text-muted-foreground text-xs hidden sm:inline-flex">
-            Action Legends Figure Vault
-          </Badge>
+        <Link href="/" className="flex items-center gap-2" onClick={() => setMobileOpen(false)}>
+          <Image src="/favicon.png" alt="ALFV Logo" width={48} height={48} className="object-contain" priority />
+          <span className="text-2xl font-black tracking-tight" style={{ color: '#4a1258' }}>ALFV</span>
         </Link>
 
         {/* Desktop nav */}

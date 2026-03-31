@@ -13,7 +13,7 @@ async function requireAdmin() {
   if (!adminEmail || user.email !== adminEmail) throw new Error('Not authorized')
 }
 
-export async function fetchEbayPrices(figureId: string): Promise<{ imported: number; skipped: number }> {
+export async function fetchEbayPrices(figureId: string, count = 3): Promise<{ imported: number; skipped: number }> {
   await requireAdmin()
 
   const figure = await prisma.figure.findUnique({ where: { id: figureId }, select: { name: true, series: true, isThirdParty: true } })
@@ -26,7 +26,7 @@ export async function fetchEbayPrices(figureId: string): Promise<{ imported: num
   const run = await client.actor('oTtB3VgfuE9GtxQt2').call({
     keyword,
     daysToScrape: 90,
-    count: 3,
+    count,
     categoryId: '0',
     ebaySite: 'ebay.com',
     sortOrder: 'endedRecently',
@@ -72,4 +72,44 @@ export async function fetchEbayPrices(figureId: string): Promise<{ imported: num
   revalidatePath('/')
 
   return { imported, skipped }
+}
+
+export async function clearEbayPrices(figureId: string): Promise<{ deleted: number }> {
+  await requireAdmin()
+  const { count } = await prisma.priceSale.deleteMany({ where: { figureId } })
+  revalidatePath('/admin')
+  revalidatePath('/')
+  return { deleted: count }
+}
+
+export async function clearAndRescrapeLowPrices(threshold = 29): Promise<{ processed: { name: string; imported: number }[] }> {
+  await requireAdmin()
+
+  const figures = await prisma.figure.findMany({
+    include: { priceSales: { select: { price: true } } },
+  })
+
+  const median = (arr: number[]) => {
+    if (!arr.length) return null
+    const s = [...arr].sort((a, b) => a - b)
+    const m = Math.floor(s.length / 2)
+    return s.length % 2 !== 0 ? s[m] : (s[m - 1] + s[m]) / 2
+  }
+
+  const lowPriceFigures = figures.filter((f) => {
+    const med = median(f.priceSales.map((s) => s.price))
+    return med !== null && med < threshold
+  })
+
+  const processed: { name: string; imported: number }[] = []
+
+  for (const figure of lowPriceFigures) {
+    await prisma.priceSale.deleteMany({ where: { figureId: figure.id } })
+    const result = await fetchEbayPrices(figure.id, 5)
+    processed.push({ name: figure.name, imported: result.imported })
+  }
+
+  revalidatePath('/admin')
+  revalidatePath('/')
+  return { processed }
 }

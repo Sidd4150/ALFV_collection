@@ -16,7 +16,7 @@ export function FetchPricesButton({ figureId }: { figureId: string }) {
     setError('')
     startTransition(async () => {
       try {
-        const res = await fetchEbayPrices(figureId)
+        const res = await fetchEbayPrices(figureId, 5)
         setResult(res)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed')

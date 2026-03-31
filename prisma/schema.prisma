@@ -82,6 +82,13 @@ model PriceSale {
   user   User?  @relation(fields: [submittedBy], references: [id])
 }
 
+model Feedback {
+  id        String   @id @default(cuid())
+  email     String?
+  message   String
+  createdAt DateTime @default(now())
+}
+
 enum CollectionStatus {
   OWNED
   WISHLIST
