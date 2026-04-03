@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
@@ -18,7 +19,7 @@ const STATUS_COLORS = {
   WISHLIST: 'bg-yellow-500 text-white',
 } as const
 
-export default async function CollectionPage({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
+async function CollectionContent({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login?redirectTo=/collection')
@@ -158,6 +159,14 @@ export default async function CollectionPage({ searchParams }: { searchParams: P
         )}
       </div>
     </div>
+  )
+}
+
+export default function CollectionPage({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
+  return (
+    <Suspense fallback={<div className="max-w-7xl mx-auto px-4 py-10 text-xs font-mono text-muted-foreground/40">Loading…</div>}>
+      <CollectionContent searchParams={searchParams} />
+    </Suspense>
   )
 }
 

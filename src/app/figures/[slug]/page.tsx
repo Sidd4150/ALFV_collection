@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -11,7 +12,7 @@ import { PriceChart } from '@/components/PriceChart'
 import { ChevronRight } from 'lucide-react'
 import { BackButton } from '@/components/BackButton'
 
-export default async function FigureDetailPage({
+async function FigureDetailContent({
   params,
 }: {
   params: Promise<{ slug: string }>
@@ -195,5 +196,13 @@ export default async function FigureDetailPage({
 
       </div>
     </div>
+  )
+}
+
+export default function FigureDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  return (
+    <Suspense fallback={<div className="max-w-7xl mx-auto px-4 py-10 text-xs font-mono text-muted-foreground/40">Loading…</div>}>
+      <FigureDetailContent params={params} />
+    </Suspense>
   )
 }

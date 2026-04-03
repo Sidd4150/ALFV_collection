@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { connection } from 'next/server'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
@@ -10,11 +11,12 @@ import { FetchPricesButton } from '@/components/admin/FetchPricesButton'
 import { ClearPricesButton } from '@/components/admin/ClearPricesButton'
 import { RescrapeLowPricesButton } from '@/components/admin/RescrapeLowPricesButton'
 
-export default async function AdminPage() {
+async function AdminContent() {
   await connection()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user || user.email !== process.env.ADMIN_EMAIL) redirect('/auth/login')
+
   const figures = await prisma.figure.findMany({
     orderBy: [{ character: 'asc' }, { releaseDate: 'asc' }],
     select: {
@@ -75,5 +77,13 @@ export default async function AdminPage() {
         ))}
       </div>
     </div>
+  )
+}
+
+export default function AdminPage() {
+  return (
+    <Suspense fallback={<div className="max-w-4xl mx-auto px-4 py-8 text-xs font-mono text-muted-foreground/40">Loading…</div>}>
+      <AdminContent />
+    </Suspense>
   )
 }

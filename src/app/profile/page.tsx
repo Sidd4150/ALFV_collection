@@ -1,9 +1,10 @@
+import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { DeleteAccountButton } from '@/components/DeleteAccountButton'
 
-export default async function ProfilePage() {
+async function ProfileContent() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login?redirectTo=/profile')
@@ -64,6 +65,14 @@ export default async function ProfilePage() {
 
       </div>
     </div>
+  )
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<div className="max-w-2xl mx-auto px-4 py-10 text-xs font-mono text-muted-foreground/40">Loading…</div>}>
+      <ProfileContent />
+    </Suspense>
   )
 }
 

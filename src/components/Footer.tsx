@@ -94,8 +94,8 @@ export function Footer() {
       {/* Bottom bar */}
       <div className="border-t border-border/20 px-4 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <span className="text-[10px] font-mono text-muted-foreground/30 uppercase tracking-widest" suppressHydrationWarning>
-            © {new Date().getFullYear()} ALFV
+          <span className="text-[10px] font-mono text-muted-foreground/30 uppercase tracking-widest">
+            © 2026 ALFV
           </span>
           <span className="text-[10px] font-mono text-muted-foreground/25 uppercase tracking-widest text-right">
             Not affiliated with Bandai or Tamashii Nations
