@@ -45,7 +45,7 @@ export function CatalogFilters({
   const filterContent = (
     <div className="space-y-4">
       <div>
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Sort By</p>
+        <p className="text-[10px] font-mono uppercase tracking-[0.15em] text-muted-foreground/50 mb-2">Sort By</p>
         <Select
           defaultValue={searchParams.get('sort') ?? 'date-desc'}
           onValueChange={(v) => updateFilter('sort', v === 'date-desc' ? null : v)}
@@ -65,7 +65,7 @@ export function CatalogFilters({
       </div>
 
       <div>
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Character</p>
+        <p className="text-[10px] font-mono uppercase tracking-[0.15em] text-muted-foreground/50 mb-2">Character</p>
         <Select
           defaultValue={searchParams.get('character') ?? 'all'}
           onValueChange={(v) => updateFilter('character', v)}
@@ -83,7 +83,7 @@ export function CatalogFilters({
       </div>
 
       <div>
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Story Arc</p>
+        <p className="text-[10px] font-mono uppercase tracking-[0.15em] text-muted-foreground/50 mb-2">Story Arc</p>
         <Select
           defaultValue={searchParams.get('arc') ?? 'all'}
           onValueChange={(v) => updateFilter('arc', v)}
@@ -101,7 +101,7 @@ export function CatalogFilters({
       </div>
 
       <div>
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Type</p>
+        <p className="text-[10px] font-mono uppercase tracking-[0.15em] text-muted-foreground/50 mb-2">Type</p>
         <Select
           defaultValue={searchParams.get('thirdParty') ?? 'all'}
           onValueChange={(v) => updateFilter('thirdParty', v)}
@@ -118,7 +118,7 @@ export function CatalogFilters({
       </div>
 
       <div>
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Release Year</p>
+        <p className="text-[10px] font-mono uppercase tracking-[0.15em] text-muted-foreground/50 mb-2">Release Year</p>
         <Select
           defaultValue={searchParams.get('year') ?? 'all'}
           onValueChange={(v) => updateFilter('year', v)}
@@ -175,7 +175,7 @@ export function CatalogFilters({
             Filters
           </Button>
           {mobileOpen && (
-            <div className="mt-3 p-4 bg-card border border-border rounded-xl">
+            <div className="mt-3 p-4 bg-card border border-border rounded-xl shadow-md">
               {filterContent}
             </div>
           )}

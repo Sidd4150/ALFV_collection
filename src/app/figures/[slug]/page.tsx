@@ -93,8 +93,8 @@ export default async function FigureDetailPage({
                 {figure.isRerelease && <Badge variant="outline" className="border-blue-500 text-blue-600 dark:text-blue-400">Re-release</Badge>}
                 {figure.isThirdParty && <Badge variant="outline" className="border-purple-500 text-purple-600 dark:text-purple-400">3rd Party</Badge>}
               </div>
-              <h1 className="text-3xl font-black mb-1 leading-tight">{figure.name}</h1>
-              <p className="text-muted-foreground text-sm">{figure.character} — {figure.series}</p>
+              <h1 className="font-display text-4xl leading-tight tracking-wide mb-1">{figure.name}</h1>
+              <p className="text-muted-foreground text-sm font-mono">{figure.character} — {figure.series}</p>
             </div>
 
             {/* Figure Details table */}
@@ -128,10 +128,10 @@ export default async function FigureDetailPage({
             )}
 
             {/* Price card */}
-            <div className="bg-card border border-border rounded-xl p-5">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Market Price</p>
+            <div className="bg-card border border-border rounded-xl p-5 shadow-md">
+              <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground/50 mb-2">Market Price</p>
               {medianPrice ? (
-                <p className="text-4xl font-black mb-1" style={{ color: '#4a1258' }}>{formatPrice(medianPrice)}</p>
+                <p className="text-4xl font-mono font-bold mb-1 text-[#c9a040]">{formatPrice(medianPrice)}</p>
               ) : (
                 <p className="text-2xl font-bold text-muted-foreground mb-1">No data yet</p>
               )}
@@ -155,7 +155,7 @@ export default async function FigureDetailPage({
 
             {/* Market Price History */}
             {priceSales.length > 0 && (
-              <div className="bg-card border border-border rounded-xl p-5">
+              <div className="bg-card border border-border rounded-xl p-5 shadow-md">
                 <h2 className="text-base font-bold mb-4">Market Price History</h2>
                 <PriceChart sales={priceSales.map((s) => ({ price: s.price, saleDate: s.saleDate.toISOString() }))} />
               </div>
@@ -163,7 +163,7 @@ export default async function FigureDetailPage({
 
             {/* Recent eBay Sales */}
             {recentSales.length > 0 && (
-              <div className="bg-card border border-border rounded-xl p-5">
+              <div className="bg-card border border-border rounded-xl p-5 shadow-md">
                 <h2 className="text-base font-bold mb-4">Recent eBay Sales</h2>
                 <ul className="space-y-3">
                   {recentSales.map((s, i) => (

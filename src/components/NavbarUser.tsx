@@ -46,7 +46,9 @@ export function NavbarUser() {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-sm text-muted-foreground hidden sm:block">{displayName}</span>
+      <Link href="/profile" className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:block">
+        {displayName}
+      </Link>
       <Button
         variant="outline"
         size="sm"

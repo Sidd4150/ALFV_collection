@@ -95,9 +95,14 @@ async function CatalogContent({ searchParams }: { searchParams: Promise<Params> 
 
   return (
     <>
-      <div className="mb-8">
-        <h1 className="text-3xl font-black mb-1">SHF Dragon Ball Catalog</h1>
-        <p className="text-muted-foreground">{total} {total === 1 ? 'figure' : 'figures'}</p>
+      <div className="mb-8 flex items-end justify-between gap-4">
+        <div>
+          <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground/50 mb-1">S.H. Figuarts · Dragon Ball</p>
+          <h1 className="font-display text-5xl leading-none tracking-wide">Catalog</h1>
+        </div>
+        <span className="text-xs font-mono text-muted-foreground/50 tabular-nums pb-1">
+          {total} {total === 1 ? 'figure' : 'figures'}
+        </span>
       </div>
       <div className="flex flex-col md:flex-row gap-8">
         <CatalogFilters

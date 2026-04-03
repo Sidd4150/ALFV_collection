@@ -56,48 +56,48 @@ export function ImageUploadRow({ figure, editSlot }: { figure: FigureRow; editSl
     <div>
       {/* Header row */}
       <div
-        className="flex items-center gap-4 p-4 cursor-pointer hover:bg-muted/40 transition-colors"
+        className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-muted/30 transition-colors"
         onClick={() => setExpanded((o) => !o)}
       >
         {/* Thumbnail */}
-        <div className="w-12 h-12 rounded-lg bg-muted shrink-0 overflow-hidden flex items-center justify-center">
+        <div className="w-10 h-10 rounded-md bg-muted shrink-0 overflow-hidden flex items-center justify-center border border-border/40">
           {hasImages ? (
             <Image
               src={figure.images[0]}
               alt={figure.name}
-              width={48}
-              height={48}
+              width={40}
+              height={40}
               className="object-cover w-full h-full"
             />
           ) : (
-            <ImagePlus className="h-5 w-5 text-muted-foreground" />
+            <ImagePlus className="h-4 w-4 text-muted-foreground/40" />
           )}
         </div>
 
         {/* Name */}
         <div className="flex-1 min-w-0">
-          <p className="text-xs text-muted-foreground">{figure.character}</p>
-          <p className="font-semibold text-sm truncate">{figure.name}</p>
+          <p className="text-[10px] font-mono uppercase tracking-[0.1em] text-muted-foreground/40 truncate">{figure.character}</p>
+          <p className="text-sm font-medium truncate">{figure.name}</p>
         </div>
 
         {/* Image count */}
-        <span className="text-xs text-muted-foreground shrink-0">
-          {figure.images.length} image{figure.images.length !== 1 ? 's' : ''}
+        <span className="text-[10px] font-mono text-muted-foreground/40 shrink-0 tabular-nums">
+          {figure.images.length}img
         </span>
 
         {/* Upload button */}
         <Button
           variant="outline"
           size="sm"
-          className="shrink-0 gap-1"
+          className="shrink-0 gap-1.5 text-xs border-border/50 h-7 px-2.5"
           disabled={isPending}
           onClick={(e) => {
             e.stopPropagation()
             inputRef.current?.click()
           }}
         >
-          <Upload className="h-3.5 w-3.5" />
-          {isPending ? 'Uploading…' : 'Upload'}
+          <Upload className="h-3 w-3" />
+          {isPending ? '…' : 'Upload'}
         </Button>
 
         {editSlot}
@@ -111,36 +111,36 @@ export function ImageUploadRow({ figure, editSlot }: { figure: FigureRow; editSl
         />
 
         {expanded ? (
-          <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
+          <ChevronUp className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
         ) : (
-          <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
         )}
       </div>
 
       {/* Expanded image grid */}
       {expanded && (
-        <div className="border-t border-border p-4">
-          {error && <p className="text-sm text-red-500 mb-3">{error}</p>}
+        <div className="border-t border-border/30 p-4 bg-muted/10">
+          {error && <p className="text-xs font-mono text-destructive mb-3">{error}</p>}
           {figure.images.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              No images yet. Click Upload to add one.
+            <p className="text-xs font-mono text-muted-foreground/40 text-center py-4 uppercase tracking-widest">
+              No images yet
             </p>
           ) : (
-            <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
+            <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
               {figure.images.map((url) => (
                 <div key={url} className="relative group aspect-square">
                   <Image
                     src={url}
                     alt={figure.name}
                     fill
-                    className="object-cover rounded-lg"
+                    className="object-cover rounded-md"
                   />
                   <button
                     onClick={() => handleDelete(url)}
                     disabled={isPending}
-                    className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center"
+                    className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center"
                   >
-                    <Trash2 className="h-5 w-5 text-red-400" />
+                    <Trash2 className="h-4 w-4 text-red-400" />
                   </button>
                 </div>
               ))}

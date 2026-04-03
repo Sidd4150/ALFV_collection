@@ -36,23 +36,27 @@ export default async function AdminPage() {
   const withImages = figures.filter((f) => f.images.length > 0).length
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
-      <div className="flex items-start justify-between mb-8">
+    <div className="max-w-4xl mx-auto px-4 py-8">
+
+      {/* Header */}
+      <div className="flex items-end justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-black mb-1">Admin</h1>
-          <p className="text-muted-foreground">
-            {withImages} of {figures.length} figures have images
+          <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground/40 mb-1">Dashboard</p>
+          <h1 className="font-display text-5xl leading-none tracking-wide">Figures</h1>
+          <p className="text-[11px] font-mono text-muted-foreground/50 mt-2 tabular-nums">
+            {withImages}/{figures.length} with images
           </p>
         </div>
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap pb-1">
           <RescrapeLowPricesButton />
           <AddFigureForm />
         </div>
       </div>
 
-      <div className="space-y-3">
+      {/* Figure list */}
+      <div className="space-y-2">
         {figures.map((figure) => (
-          <div key={figure.id} className="bg-card border border-border rounded-xl overflow-hidden">
+          <div key={figure.id} className="bg-card border border-border/50 rounded-lg overflow-hidden shadow-sm hover:border-border/80 transition-colors">
             <ImageUploadRow
               figure={figure}
               editSlot={

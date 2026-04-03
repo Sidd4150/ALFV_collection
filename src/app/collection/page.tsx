@@ -35,7 +35,6 @@ export default async function CollectionPage({ searchParams }: { searchParams: P
   const owned = entries.filter((e) => e.status === 'OWNED')
   const wishlist = entries.filter((e) => e.status === 'WISHLIST')
 
-  const totalValue = owned.reduce((sum, e) => sum + (e.figure.msrp ?? 0) * e.quantity, 0)
   const displayName = user.user_metadata?.username ?? user.email?.split('@')[0] ?? 'Collector'
 
   const ownedFigureIds = owned.map((e) => e.figureId)
@@ -81,12 +80,13 @@ export default async function CollectionPage({ searchParams }: { searchParams: P
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-black mb-1">{displayName}&apos;s Vault</h1>
-          <p className="text-muted-foreground">{entries.length} figures tracked</p>
+          <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground/50 mb-1">{displayName}</p>
+          <h1 className="font-display text-5xl leading-none tracking-wide">Your Vault</h1>
+          <p className="text-muted-foreground text-xs font-mono mt-1">{entries.length} figures tracked</p>
         </div>
 
         {welcome && (
-          <div className="mb-6 rounded-xl border border-border bg-card px-5 py-4 flex items-center gap-3">
+          <div className="mb-6 rounded-xl border border-border bg-card px-5 py-4 flex items-center gap-3 shadow-md">
             <span className="text-2xl">🎉</span>
             <div>
               <p className="font-bold text-sm">Account created!</p>
@@ -96,23 +96,22 @@ export default async function CollectionPage({ searchParams }: { searchParams: P
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+        <div className="flex flex-wrap justify-center gap-4 mb-6">
           {[
             { label: 'Owned', value: owned.length, color: 'text-green-500' },
             { label: 'Wishlisted', value: wishlist.length, color: 'text-yellow-500' },
-            { label: 'MSRP Value', value: formatPrice(totalValue), color: 'text-foreground' },
-            { label: 'Market Value', value: marketValue > 0 ? formatPrice(marketValue) : '—', color: '' , style: { color: '#4a1258' } },
+            { label: 'Market Value', value: marketValue > 0 ? formatPrice(marketValue) : '—', color: '' , style: { color: '#c9a040' } },
           ].map((stat) => (
-            <div key={stat.label} className="bg-card border border-border rounded-xl p-4 text-center">
-              <p className={`text-2xl font-black ${stat.color}`} style={(stat as { style?: React.CSSProperties }).style}>{stat.value}</p>
-              <p className="text-muted-foreground text-xs mt-1">{stat.label}</p>
+            <div key={stat.label} className="bg-card border border-border/50 rounded-lg p-4 text-center shadow-md w-36">
+              <p className={`text-2xl font-mono font-bold ${stat.color}`} style={(stat as { style?: React.CSSProperties }).style}>{stat.value}</p>
+              <p className="text-[10px] font-mono uppercase tracking-[0.12em] text-muted-foreground/50 mt-1">{stat.label}</p>
             </div>
           ))}
         </div>
 
         {/* Market value chart */}
         {chartSales.length > 0 && (
-          <div className="bg-card border border-border rounded-xl p-5 mb-10">
+          <div className="bg-card border border-border rounded-xl p-5 mb-10 shadow-md">
             <h2 className="text-base font-bold mb-4">Collection Market Value Over Time</h2>
             <PriceChart sales={chartSales} label="Total Collection Market Value" />
           </div>
@@ -120,7 +119,7 @@ export default async function CollectionPage({ searchParams }: { searchParams: P
 
         {/* Empty state */}
         {entries.length === 0 ? (
-          <div className="bg-card border border-border rounded-xl p-10 text-center">
+          <div className="bg-card border border-border rounded-xl p-10 text-center shadow-md">
             <p className="text-4xl mb-4">📦</p>
             <h2 className="text-xl font-bold mb-2">Your vault is empty</h2>
             <p className="text-muted-foreground text-sm mb-6">
@@ -135,7 +134,7 @@ export default async function CollectionPage({ searchParams }: { searchParams: P
             {/* Owned */}
             {owned.length > 0 && (
               <section className="mb-10">
-                <h2 className="text-xl font-black mb-4">Owned <span className="text-muted-foreground font-normal text-base">({owned.length})</span></h2>
+                <h2 className="font-display text-3xl tracking-wide mb-4">Owned <span className="text-muted-foreground/50 font-display text-xl">({owned.length})</span></h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4">
                   {owned.map((entry) => (
                     <FigureCard key={entry.id} entry={entry} salesByFigure={salesByFigure} median={median} />
@@ -147,7 +146,7 @@ export default async function CollectionPage({ searchParams }: { searchParams: P
             {/* Wishlist */}
             {wishlist.length > 0 && (
               <section>
-                <h2 className="text-xl font-black mb-4">Wishlist <span className="text-muted-foreground font-normal text-base">({wishlist.length})</span></h2>
+                <h2 className="font-display text-3xl tracking-wide mb-4">Wishlist <span className="text-muted-foreground/50 font-display text-xl">({wishlist.length})</span></h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4">
                   {wishlist.map((entry) => (
                     <FigureCard key={entry.id} entry={entry} salesByFigure={salesByFigure} median={median} />
@@ -195,58 +194,59 @@ function FigureCard({
 
   return (
     <Link href={`/figures/${entry.figure.slug}`} className="group block">
-      <div className="bg-card border border-border rounded-xl overflow-hidden hover:border-[#4a1258] transition-colors">
-        {/* Image */}
-        <div className="relative aspect-square bg-muted overflow-hidden">
-          {entry.figure.images[0] ? (
-            <Image
-              src={entry.figure.images[0]}
-              alt={entry.figure.name}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-xs">No image</div>
-          )}
-          {/* Status badge overlay */}
-          <div className="absolute top-2 left-2 flex flex-col gap-1">
-            {entry.status in STATUS_LABELS && (
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_COLORS[entry.status as keyof typeof STATUS_COLORS]}`}>
-                {STATUS_LABELS[entry.status as keyof typeof STATUS_LABELS]}
-              </span>
-            )}
-            {entry.figure.isThirdParty && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500 text-white">3rd Party</span>
-            )}
-            {entry.figure.isWebExclusive && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-yellow-500 text-white">Web Excl.</span>
-            )}
-            {entry.figure.isRerelease && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500 text-white">Re-release</span>
-            )}
+      <div className="relative rounded-lg overflow-hidden border border-border/50 shadow-lg hover:border-[#4a1258]/50 hover:shadow-[0_4px_24px_rgba(74,18,88,0.25)] transition-all duration-300 aspect-[3/4]">
+
+        {entry.figure.images[0] ? (
+          <Image
+            src={entry.figure.images[0]}
+            alt={entry.figure.name}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-muted flex items-center justify-center">
+            <span className="text-muted-foreground/40 text-[10px] font-mono tracking-widest uppercase">No Image</span>
           </div>
-          {entry.quantity > 1 && (
-            <div className="absolute top-2 right-2">
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/70 text-white">×{entry.quantity}</span>
-            </div>
+        )}
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/20 to-transparent" />
+
+        {/* Top badges */}
+        <div className="absolute top-2 left-2 flex flex-col gap-1">
+          {entry.status in STATUS_LABELS && (
+            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${STATUS_COLORS[entry.status as keyof typeof STATUS_COLORS]} text-white backdrop-blur-sm`}>
+              {STATUS_LABELS[entry.status as keyof typeof STATUS_LABELS]}
+            </span>
+          )}
+          {entry.figure.isThirdParty && (
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-600/85 text-white backdrop-blur-sm">3P</span>
+          )}
+          {entry.figure.isWebExclusive && (
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/85 text-white backdrop-blur-sm">WEB</span>
           )}
         </div>
 
-        {/* Info */}
-        <div className="p-3">
-          <p className="text-xs text-muted-foreground truncate">{entry.figure.character}</p>
-          <p className="text-sm font-bold leading-tight mt-0.5 line-clamp-2">{entry.figure.name}</p>
-          <div className="mt-2 flex items-center justify-between gap-1">
+        {entry.quantity > 1 && (
+          <div className="absolute top-2 right-2">
+            <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-black/70 text-white backdrop-blur-sm">×{entry.quantity}</span>
+          </div>
+        )}
+
+        {/* Bottom info */}
+        <div className="absolute bottom-0 left-0 right-0 p-3">
+          <p className="text-[10px] font-mono text-white/45 uppercase tracking-[0.12em] mb-0.5 truncate">{entry.figure.character}</p>
+          <p className="text-sm font-semibold leading-snug text-white line-clamp-2 group-hover:text-[#c9a040] transition-colors duration-200">{entry.figure.name}</p>
+          <div className="mt-1.5 flex items-center justify-between gap-1">
             {marketPrice ? (
-              <span className="text-sm font-black" style={{ color: '#4a1258' }}>{formatPrice(marketPrice)}</span>
+              <span className="text-[11px] font-mono text-[#c9a040]/80">{formatPrice(marketPrice)}</span>
             ) : displayPrice ? (
-              <span className="text-sm font-bold">{formatPrice(displayPrice)}</span>
+              <span className="text-[11px] font-mono text-white/50">{formatPrice(displayPrice)}</span>
             ) : (
-              <span className="text-xs text-muted-foreground">—</span>
+              <span className="text-[11px] font-mono text-white/30">—</span>
             )}
             {entry.condition && (
-              <span className="text-[10px] text-muted-foreground border border-border rounded px-1.5 py-0.5 truncate">{entry.condition}</span>
+              <span className="text-[9px] font-mono text-white/40 border border-white/20 rounded px-1.5 py-0.5 truncate backdrop-blur-sm">{entry.condition}</span>
             )}
           </div>
         </div>
