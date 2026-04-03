@@ -1,4 +1,6 @@
 import { connection } from 'next/server'
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { ImageUploadRow } from '@/components/admin/ImageUploadRow'
 import { AddFigureForm } from '@/components/admin/AddFigureForm'
@@ -10,6 +12,9 @@ import { RescrapeLowPricesButton } from '@/components/admin/RescrapeLowPricesBut
 
 export default async function AdminPage() {
   await connection()
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user || user.email !== process.env.ADMIN_EMAIL) redirect('/auth/login')
   const figures = await prisma.figure.findMany({
     orderBy: [{ character: 'asc' }, { releaseDate: 'asc' }],
     select: {

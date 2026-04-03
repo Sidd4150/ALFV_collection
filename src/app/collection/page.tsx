@@ -18,10 +18,11 @@ const STATUS_COLORS = {
   WISHLIST: 'bg-yellow-500 text-white',
 } as const
 
-export default async function CollectionPage() {
+export default async function CollectionPage({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login?redirectTo=/collection')
+  const { welcome } = await searchParams
 
   const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } })
 
@@ -83,6 +84,16 @@ export default async function CollectionPage() {
           <h1 className="text-3xl font-black mb-1">{displayName}&apos;s Vault</h1>
           <p className="text-muted-foreground">{entries.length} figures tracked</p>
         </div>
+
+        {welcome && (
+          <div className="mb-6 rounded-xl border border-border bg-card px-5 py-4 flex items-center gap-3">
+            <span className="text-2xl">🎉</span>
+            <div>
+              <p className="font-bold text-sm">Account created!</p>
+              <p className="text-muted-foreground text-sm">Welcome to ALFV. Start adding figures to your vault below.</p>
+            </div>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
