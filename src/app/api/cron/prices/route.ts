@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
         const externalId = String(i.itemId ?? '')
         const soldAt = i.endedAt ?? null
 
-        if (!price || !externalId) { totalSkipped++; continue }
+        if (!price || price < 15 || !externalId) { totalSkipped++; continue }
 
         try {
           await prisma.priceSale.create({

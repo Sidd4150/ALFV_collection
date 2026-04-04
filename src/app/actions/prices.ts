@@ -47,7 +47,7 @@ export async function fetchEbayPrices(figureId: string, count = 3): Promise<{ im
     const externalId = String(i.itemId ?? '')
     const soldAt = i.endedAt ?? null
 
-    if (!price || !externalId) { skipped++; continue }
+    if (!price || price < 15 || !externalId) { skipped++; continue }
 
     try {
       await prisma.priceSale.create({

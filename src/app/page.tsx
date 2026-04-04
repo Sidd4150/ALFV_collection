@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { FigureCard } from '@/components/FigureCard'
 import { CatalogFilters } from '@/components/CatalogFilters'
 import { CatalogPagination } from '@/components/CatalogPagination'
+import { TypeToggle } from '@/components/TypeToggle'
 import type { Figure } from '@/generated/prisma'
 
 const PAGE_SIZE = 50
@@ -49,11 +50,15 @@ async function CatalogContent({ searchParams }: { searchParams: Promise<Params> 
     return s.length % 2 !== 0 ? s[m] : (s[m - 1] + s[m]) / 2
   }
 
-  const [characters, arcs, datesWithYear] = await Promise.all([
+  const [characters, arcs, datesWithYear, officialFig, thirdPartyFig] = await Promise.all([
     prisma.figure.findMany({ select: { character: true }, distinct: ['character'], orderBy: { character: 'asc' } }),
     prisma.figure.findMany({ select: { arc: true }, distinct: ['arc'], orderBy: { arc: 'asc' } }),
     prisma.figure.findMany({ select: { releaseDate: true }, where: { releaseDate: { not: null } } }),
+    prisma.figure.findFirst({ where: { name: { contains: 'Toyotarou', mode: 'insensitive' }, isThirdParty: false }, select: { images: true } }),
+    prisma.figure.findFirst({ where: { name: { contains: 'Air', mode: 'insensitive' }, isThirdParty: true, character: { contains: 'vegeta', mode: 'insensitive' } }, select: { images: true } }),
   ])
+  const officialImage = officialFig?.images[0]
+  const thirdPartyImage = thirdPartyFig?.images[0]
   const years = [...new Set(datesWithYear.map((f: { releaseDate: Date | null }) => new Date(f.releaseDate!).getFullYear()))].sort() as number[]
 
   let figures: Figure[]
@@ -104,6 +109,7 @@ async function CatalogContent({ searchParams }: { searchParams: Promise<Params> 
           {total} {total === 1 ? 'figure' : 'figures'}
         </span>
       </div>
+      <TypeToggle officialImage={officialImage} thirdPartyImage={thirdPartyImage} />
       <div className="flex flex-col md:flex-row gap-8">
         <CatalogFilters
           characters={characters.map((c: { character: string }) => c.character)}
