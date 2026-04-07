@@ -84,6 +84,7 @@ model PriceSale {
 
 model Feedback {
   id        String   @id @default(cuid())
+  type      String   @default("feedback")
   email     String?
   message   String
   createdAt DateTime @default(now())

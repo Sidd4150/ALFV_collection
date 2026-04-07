@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { ScrollRestoration } from "@/components/ScrollRestoration";
 
 const bebasNeue = Bebas_Neue({
   variable: "--font-bebas",
@@ -53,6 +54,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider>
+          <ScrollRestoration />
           <Navbar />
           {children}
           <Footer />

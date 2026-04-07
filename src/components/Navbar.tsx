@@ -11,6 +11,7 @@ import { NavbarUser } from '@/components/NavbarUser'
 const navLinks = [
   { href: '/', label: 'Catalog' },
   { href: '/collection', label: 'Collection' },
+  { href: '/feedback', label: 'Feedback' },
 ]
 
 export function Navbar() {
