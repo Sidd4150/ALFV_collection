@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Syne, Geist_Mono } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -54,7 +55,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider>
-          <ScrollRestoration />
+          <Suspense><ScrollRestoration /></Suspense>
           <Navbar />
           {children}
           <Footer />
