@@ -52,6 +52,35 @@ export async function removeFromCollection(figureId: string) {
   revalidatePath(`/figures/[slug]`, 'page')
 }
 
+export async function batchRemoveFromCollection(figureIds: string[]) {
+  if (figureIds.length === 0) return
+  const dbUser = await getOrCreateUser()
+
+  await prisma.userCollection.deleteMany({
+    where: { userId: dbUser.id, figureId: { in: figureIds } },
+  })
+
+  revalidatePath('/collection')
+  revalidatePath(`/figures/[slug]`, 'page')
+}
+
+export async function batchAddToCollection(figureIds: string[]) {
+  if (figureIds.length === 0) return
+  const dbUser = await getOrCreateUser()
+
+  await prisma.userCollection.createMany({
+    data: figureIds.map((figureId) => ({
+      userId: dbUser.id,
+      figureId,
+      status: CollectionStatus.OWNED,
+    })),
+    skipDuplicates: true,
+  })
+
+  revalidatePath('/collection')
+  revalidatePath(`/figures/[slug]`, 'page')
+}
+
 export async function getCollectionEntry(figureId: string) {
   try {
     const dbUser = await getOrCreateUser()

@@ -30,6 +30,7 @@ model Figure {
 
   collections UserCollection[]
   priceSales  PriceSale[]
+  snapshots   FigureSnapshot[]
 }
 
 model User {
@@ -43,8 +44,9 @@ model User {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  collections UserCollection[]
-  priceSales  PriceSale[]
+  collections  UserCollection[]
+  priceSales   PriceSale[]
+  submissions  FigureSubmission[]
 }
 
 model UserCollection {
@@ -82,12 +84,51 @@ model PriceSale {
   user   User?  @relation(fields: [submittedBy], references: [id])
 }
 
+model FigureSnapshot {
+  id          String   @id @default(cuid())
+  figureId    String
+  marketPrice Float
+  snapshotAt  DateTime @default(now())
+
+  figure Figure @relation(fields: [figureId], references: [id], onDelete: Cascade)
+}
+
+model FigureSubmission {
+  id             String           @id @default(cuid())
+  name           String
+  character      String
+  series         String
+  arc            String?
+  releaseDate    String?
+  msrp           Float?
+  msrpJpy        Int?
+  janCode        String?
+  isWebExclusive Boolean          @default(false)
+  isRerelease    Boolean          @default(false)
+  isThirdParty   Boolean          @default(false)
+  version        String?
+  description    String?
+  accessories    String[]
+  notes          String?
+  status         SubmissionStatus @default(PENDING)
+  submittedBy    String?
+  createdAt      DateTime         @default(now())
+
+  user User? @relation(fields: [submittedBy], references: [id])
+}
+
 model Feedback {
   id        String   @id @default(cuid())
   type      String   @default("feedback")
   email     String?
   message   String
   createdAt DateTime @default(now())
+}
+
+enum SubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 enum CollectionStatus {

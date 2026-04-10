@@ -5,6 +5,7 @@ interface Props {
   page: number
   totalPages: number
   searchParams: Record<string, string>
+  className?: string
 }
 
 function pageUrl(params: Record<string, string>, page: number) {
@@ -13,7 +14,7 @@ function pageUrl(params: Record<string, string>, page: number) {
   return `?${p.toString()}`
 }
 
-export function CatalogPagination({ page, totalPages, searchParams }: Props) {
+export function CatalogPagination({ page, totalPages, searchParams, className }: Props) {
   if (totalPages <= 1) return null
 
   const pages: (number | '…')[] = []
@@ -26,7 +27,7 @@ export function CatalogPagination({ page, totalPages, searchParams }: Props) {
   }
 
   return (
-    <div className="flex items-center justify-center gap-1 mt-8 flex-wrap">
+    <div className={`flex items-center justify-center gap-1 flex-wrap ${className ?? 'mt-8'}`}>
       <Button variant="outline" size="sm" disabled={page <= 1} asChild={page > 1}>
         {page > 1 ? (
           <Link href={pageUrl(searchParams, page - 1)}>Previous</Link>

@@ -14,7 +14,7 @@ type FigureRow = {
   images: string[]
 }
 
-export function ImageUploadRow({ figure, editSlot }: { figure: FigureRow; editSlot?: React.ReactNode }) {
+export function ImageUploadRow({ figure, editSlot, priceSlot }: { figure: FigureRow; editSlot?: React.ReactNode; priceSlot?: React.ReactNode }) {
   const [expanded, setExpanded] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
@@ -117,35 +117,44 @@ export function ImageUploadRow({ figure, editSlot }: { figure: FigureRow; editSl
         )}
       </div>
 
-      {/* Expanded image grid */}
+      {/* Expanded section */}
       {expanded && (
-        <div className="border-t border-border/30 p-4 bg-muted/10">
-          {error && <p className="text-xs font-mono text-destructive mb-3">{error}</p>}
-          {figure.images.length === 0 ? (
-            <p className="text-xs font-mono text-muted-foreground/40 text-center py-4 uppercase tracking-widest">
-              No images yet
-            </p>
-          ) : (
-            <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-              {figure.images.map((url) => (
-                <div key={url} className="relative group aspect-square">
-                  <Image
-                    src={url}
-                    alt={figure.name}
-                    fill
-                    className="object-cover rounded-md"
-                  />
-                  <button
-                    onClick={() => handleDelete(url)}
-                    disabled={isPending}
-                    className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center"
-                  >
-                    <Trash2 className="h-4 w-4 text-red-400" />
-                  </button>
-                </div>
-              ))}
+        <div className="border-t border-border/30 bg-muted/10" onClick={(e) => e.stopPropagation()}>
+          {/* Price actions */}
+          {priceSlot && (
+            <div className="px-4 pt-3 pb-2 border-b border-border/20">
+              {priceSlot}
             </div>
           )}
+          {/* Images */}
+          <div className="p-4">
+            {error && <p className="text-xs font-mono text-destructive mb-3">{error}</p>}
+            {figure.images.length === 0 ? (
+              <p className="text-xs font-mono text-muted-foreground/40 text-center py-4 uppercase tracking-widest">
+                No images yet
+              </p>
+            ) : (
+              <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                {figure.images.map((url) => (
+                  <div key={url} className="relative group aspect-square">
+                    <Image
+                      src={url}
+                      alt={figure.name}
+                      fill
+                      className="object-cover rounded-md"
+                    />
+                    <button
+                      onClick={() => handleDelete(url)}
+                      disabled={isPending}
+                      className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center"
+                    >
+                      <Trash2 className="h-4 w-4 text-red-400" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

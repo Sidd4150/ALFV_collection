@@ -1,10 +1,11 @@
 import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
-import { FigureCard } from '@/components/FigureCard'
+import { CatalogGrid } from '@/components/CatalogGrid'
 import { CatalogFilters } from '@/components/CatalogFilters'
 import { CatalogPagination } from '@/components/CatalogPagination'
 import { TypeToggle } from '@/components/TypeToggle'
 import type { Figure } from '@/generated/prisma'
+import { computeMarketPrice } from '@/lib/pricing'
 
 const PAGE_SIZE = 50
 
@@ -43,13 +44,6 @@ async function CatalogContent({ searchParams }: { searchParams: Promise<Params> 
     params.sort === 'date-asc' ? { releaseDate: 'asc' as const } :
     { releaseDate: 'desc' as const }
 
-  const median = (arr: number[]) => {
-    if (!arr.length) return null
-    const s = [...arr].sort((a, b) => a - b)
-    const m = Math.floor(s.length / 2)
-    return s.length % 2 !== 0 ? s[m] : (s[m - 1] + s[m]) / 2
-  }
-
   const [characters, arcs, datesWithYear, officialFig, thirdPartyFig] = await Promise.all([
     prisma.figure.findMany({ select: { character: true }, distinct: ['character'], orderBy: { character: 'asc' } }),
     prisma.figure.findMany({ select: { arc: true }, distinct: ['arc'], orderBy: { arc: 'asc' } }),
@@ -68,12 +62,12 @@ async function CatalogContent({ searchParams }: { searchParams: Promise<Params> 
     // Fetch all for in-memory median sort, then paginate
     const all = await prisma.figure.findMany({
       where,
-      include: { priceSales: { select: { price: true } } },
+      include: { priceSales: { select: { price: true, saleDate: true, condition: true } } },
     })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sorted = [...all].sort((a: any, b: any) => {
-      const aPrice = median(a.priceSales?.map((s: { price: number }) => s.price) ?? []) ?? -1
-      const bPrice = median(b.priceSales?.map((s: { price: number }) => s.price) ?? []) ?? -1
+      const aPrice = computeMarketPrice(a.priceSales ?? []) ?? -1
+      const bPrice = computeMarketPrice(b.priceSales ?? []) ?? -1
       return params.sort === 'market-asc' ? aPrice - bPrice : bPrice - aPrice
     })
     total = sorted.length
@@ -100,7 +94,7 @@ async function CatalogContent({ searchParams }: { searchParams: Promise<Params> 
 
   return (
     <>
-      <div className="mb-8 flex items-end justify-between gap-4">
+      <div className="mb-2 flex items-end justify-between gap-4">
         <div>
           <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground/50 mb-1">S.H. Figuarts · Dragon Ball</p>
           <h1 className="font-display text-5xl leading-none tracking-wide">Catalog</h1>
@@ -109,7 +103,6 @@ async function CatalogContent({ searchParams }: { searchParams: Promise<Params> 
           {total} {total === 1 ? 'figure' : 'figures'}
         </span>
       </div>
-      <TypeToggle officialImage={officialImage} thirdPartyImage={thirdPartyImage} />
       <div className="flex flex-col md:flex-row gap-8">
         <CatalogFilters
           characters={characters.map((c: { character: string }) => c.character)}
@@ -117,6 +110,15 @@ async function CatalogContent({ searchParams }: { searchParams: Promise<Params> 
           years={years}
         />
         <div className="flex-1">
+          <TypeToggle officialImage={officialImage} thirdPartyImage={thirdPartyImage} />
+          <div className="flex justify-center mb-4">
+            <a
+              href="/submit"
+              className="text-xs font-mono text-muted-foreground/50 hover:text-[#4a1258] transition-colors"
+            >
+              Don&apos;t see your figure? Submit it →
+            </a>
+          </div>
           {figures.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-center">
               <p className="text-4xl mb-4">🔍</p>
@@ -125,11 +127,7 @@ async function CatalogContent({ searchParams }: { searchParams: Promise<Params> 
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                {figures.map((figure: Figure) => (
-                  <FigureCard key={figure.id} figure={figure} />
-                ))}
-              </div>
+              <CatalogGrid figures={figures} page={page} totalPages={totalPages} searchParams={linkParams} />
               <CatalogPagination page={page} totalPages={totalPages} searchParams={linkParams} />
             </>
           )}
@@ -146,7 +144,7 @@ export default function CatalogPage({
 }) {
   return (
     <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 py-10">
+      <div className="max-w-7xl mx-auto px-4 py-5">
         <Suspense fallback={<div className="text-muted-foreground text-sm">Loading...</div>}>
           <CatalogContent searchParams={searchParams} />
         </Suspense>

@@ -29,7 +29,7 @@ export function TypeToggle({
     'relative overflow-hidden rounded-2xl w-48 h-28 flex items-end justify-start p-4 transition-all duration-300 cursor-pointer group ring-2'
 
   return (
-    <div className="flex justify-center gap-4 mb-8">
+    <div className="flex justify-center gap-4 mb-2">
       <button
         onClick={() => toggle('false')}
         className={`${btnBase} ${

@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { formatPrice, formatPriceJpy } from '@/lib/utils'
+import { computeMarketPrice } from '@/lib/pricing'
 import { createClient } from '@/lib/supabase/server'
 import { getCollectionEntry } from '@/app/actions/collection'
 import { CollectionButton } from '@/components/CollectionButton'
@@ -31,14 +32,11 @@ async function FigureDetailContent({
     prisma.priceSale.findMany({
       where: { figureId: figure.id },
       orderBy: { saleDate: 'asc' },
-      select: { price: true, saleDate: true, sourceUrl: true },
+      select: { price: true, saleDate: true, condition: true, sourceUrl: true },
     }),
   ])
 
-  const prices = priceSales.map((s) => s.price)
-  const medianPrice = prices.length > 0
-    ? (() => { const sorted = [...prices].sort((a, b) => a - b); const mid = Math.floor(sorted.length / 2); return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2 })()
-    : null
+  const medianPrice = computeMarketPrice(priceSales)
 
   const recentSales = [...priceSales].reverse().filter((s) => s.sourceUrl).slice(0, 5)
 

@@ -4,6 +4,17 @@ import { ApifyClient } from 'apify-client'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { computeMarketPrice } from '@/lib/pricing'
+
+async function saveSnapshot(figureId: string) {
+  const sales = await prisma.priceSale.findMany({
+    where: { figureId },
+    select: { price: true, saleDate: true, condition: true },
+  })
+  const marketPrice = computeMarketPrice(sales)
+  if (marketPrice === null) return
+  await prisma.figureSnapshot.create({ data: { figureId, marketPrice } })
+}
 
 async function requireAdmin() {
   const supabase = await createClient()
@@ -67,6 +78,8 @@ export async function fetchEbayPrices(figureId: string, count = 3): Promise<{ im
       skipped++
     }
   }
+
+  await saveSnapshot(figureId)
 
   revalidatePath('/admin')
   revalidatePath('/')

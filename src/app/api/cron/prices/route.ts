@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ApifyClient } from 'apify-client'
 import { prisma } from '@/lib/prisma'
+import { computeMarketPrice } from '@/lib/pricing'
 
 export async function POST(req: NextRequest) {
   const secret = process.env.CRON_SECRET
@@ -57,6 +58,19 @@ export async function POST(req: NextRequest) {
         } catch {
           totalSkipped++
         }
+      }
+      // Save market price snapshot for this scrape run
+      try {
+        const sales = await prisma.priceSale.findMany({
+          where: { figureId: figure.id },
+          select: { price: true, saleDate: true, condition: true },
+        })
+        const marketPrice = computeMarketPrice(sales)
+        if (marketPrice !== null) {
+          await prisma.figureSnapshot.create({ data: { figureId: figure.id, marketPrice } })
+        }
+      } catch (err) {
+        console.error(`Failed to save snapshot for ${figure.name}:`, err)
       }
     } catch (err) {
       console.error(`Failed to fetch prices for ${figure.name}:`, err)

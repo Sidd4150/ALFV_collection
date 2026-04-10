@@ -30,10 +30,10 @@ export function Footer() {
               Feedback
             </Link>
             <Link
-              href="/feedback?tab=missing"
+              href="/submit"
               className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/50 hover:text-[#4a1258] transition-colors"
             >
-              Missing Figure?
+              Submit a Figure
             </Link>
           </div>
         </div>
