@@ -2,6 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+  experimental: {
+    outputFileTracingIncludes: {
+      '/': ['./middleware.js'],
+    },
+  },
   serverExternalPackages: ['apify-client'],
   images: {
     remotePatterns: [
