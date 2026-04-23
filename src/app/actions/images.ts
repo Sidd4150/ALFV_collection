@@ -37,14 +37,14 @@ export async function uploadFigureImage(figureId: string, formData: FormData) {
     .from(BUCKET)
     .getPublicUrl(path)
 
-  await prisma.figure.update({
+  const figure = await prisma.figure.update({
     where: { id: figureId },
     data: { images: { push: publicUrl } },
+    select: { slug: true },
   })
 
   revalidatePath('/admin')
-  revalidatePath('/')
-  revalidatePath('/figures/[slug]', 'page')
+  revalidatePath(`/figures/${figure.slug}`)
 }
 
 export async function deleteFigureImage(figureId: string, imageUrl: string) {
@@ -58,7 +58,7 @@ export async function deleteFigureImage(figureId: string, imageUrl: string) {
     await supabaseAdmin.storage.from(BUCKET).remove([path])
   }
 
-  const figure = await prisma.figure.findUnique({ where: { id: figureId } })
+  const figure = await prisma.figure.findUnique({ where: { id: figureId }, select: { slug: true, images: true } })
   if (!figure) throw new Error('Figure not found')
 
   await prisma.figure.update({
@@ -67,6 +67,5 @@ export async function deleteFigureImage(figureId: string, imageUrl: string) {
   })
 
   revalidatePath('/admin')
-  revalidatePath('/')
-  revalidatePath('/figures/[slug]', 'page')
+  revalidatePath(`/figures/${figure.slug}`)
 }
