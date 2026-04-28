@@ -13,7 +13,8 @@
     "fetch:youtube": "npx tsx scripts/fetch-youtube-figures.ts",
     "parse:youtube": "npx tsx scripts/parse-youtube-figures.ts",
     "import:youtube": "npx tsx scripts/import-youtube-figures.ts",
-    "scrape:ebay": "npx tsx scripts/scrape-ebay-prices.ts"
+    "scrape:ebay": "npx tsx scripts/scrape-ebay-prices.ts",
+    "migrate:images": "npx tsx scripts/migrate-images.ts"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -50,8 +51,10 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/sharp": "^0.31.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",

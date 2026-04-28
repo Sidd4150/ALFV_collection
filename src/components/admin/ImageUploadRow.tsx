@@ -14,6 +14,45 @@ type FigureRow = {
   images: string[]
 }
 
+/** Resize and convert to WebP using a canvas. maxDimension=0 means no resize. */
+function compressToWebP(file: File, maxDimension: number, quality: number): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image()
+    const objectUrl = URL.createObjectURL(file)
+    img.onload = () => {
+      let { width, height } = img
+      if (maxDimension > 0 && (width > maxDimension || height > maxDimension)) {
+        if (width >= height) {
+          height = Math.round((height * maxDimension) / width)
+          width = maxDimension
+        } else {
+          width = Math.round((width * maxDimension) / height)
+          height = maxDimension
+        }
+      }
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      const ctx = canvas.getContext('2d')!
+      ctx.drawImage(img, 0, 0, width, height)
+      canvas.toBlob(
+        (blob) => {
+          URL.revokeObjectURL(objectUrl)
+          if (blob) resolve(blob)
+          else reject(new Error('Canvas toBlob failed'))
+        },
+        'image/webp',
+        quality,
+      )
+    }
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl)
+      reject(new Error('Image load failed'))
+    }
+    img.src = objectUrl
+  })
+}
+
 export function ImageUploadRow({ figure, editSlot, priceSlot }: { figure: FigureRow; editSlot?: React.ReactNode; priceSlot?: React.ReactNode }) {
   const [expanded, setExpanded] = useState(false)
   const [isPending, startTransition] = useTransition()
@@ -25,18 +64,23 @@ export function ImageUploadRow({ figure, editSlot, priceSlot }: { figure: Figure
     if (!file) return
     setError('')
 
-    const formData = new FormData()
-    formData.append('image', file)
-
     startTransition(async () => {
       try {
+        const [thumbBlob, fullBlob] = await Promise.all([
+          compressToWebP(file, 800, 0.75),
+          compressToWebP(file, 0, 0.92),
+        ])
+
+        const formData = new FormData()
+        formData.append('thumb', new File([thumbBlob], 'thumb.webp', { type: 'image/webp' }))
+        formData.append('full', new File([fullBlob], 'full.webp', { type: 'image/webp' }))
+
         await uploadFigureImage(figure.id, formData)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Upload failed')
       }
     })
 
-    // reset input
     e.target.value = ''
   }
 

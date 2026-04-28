@@ -18,24 +18,28 @@ export async function uploadFigureImage(figureId: string, formData: FormData) {
   await requireAdmin()
   await ensureBucket()
 
-  const file = formData.get('image') as File
-  if (!file || file.size === 0) throw new Error('No file provided')
+  const thumb = formData.get('thumb') as File
+  const full = formData.get('full') as File
+  if (!thumb || thumb.size === 0) throw new Error('No file provided')
 
-  const ext = file.name.split('.').pop()
-  const filename = `${Date.now()}.${ext}`
-  const path = `figures/${figureId}/${filename}`
+  const ts = Date.now()
+  const thumbPath = `figures/${figureId}/${ts}_thumb.webp`
+  const fullPath = `figures/${figureId}/${ts}_full.webp`
 
-  const bytes = await file.arrayBuffer()
+  const [thumbBytes, fullBytes] = await Promise.all([
+    thumb.arrayBuffer(),
+    full.arrayBuffer(),
+  ])
 
-  const { error } = await supabaseAdmin.storage
-    .from(BUCKET)
-    .upload(path, bytes, { contentType: file.type, upsert: false })
+  const [thumbUpload, fullUpload] = await Promise.all([
+    supabaseAdmin.storage.from(BUCKET).upload(thumbPath, thumbBytes, { contentType: 'image/webp', upsert: false }),
+    supabaseAdmin.storage.from(BUCKET).upload(fullPath, fullBytes, { contentType: 'image/webp', upsert: false }),
+  ])
 
-  if (error) throw error
+  if (thumbUpload.error) throw thumbUpload.error
+  if (fullUpload.error) throw fullUpload.error
 
-  const { data: { publicUrl } } = supabaseAdmin.storage
-    .from(BUCKET)
-    .getPublicUrl(path)
+  const { data: { publicUrl } } = supabaseAdmin.storage.from(BUCKET).getPublicUrl(thumbPath)
 
   const figure = await prisma.figure.update({
     where: { id: figureId },
@@ -50,12 +54,20 @@ export async function uploadFigureImage(figureId: string, formData: FormData) {
 export async function deleteFigureImage(figureId: string, imageUrl: string) {
   await requireAdmin()
 
-  // Extract storage path from URL
   const url = new URL(imageUrl)
-  const path = url.pathname.split(`/object/public/${BUCKET}/`)[1]
+  const thumbStoragePath = url.pathname.split(`/object/public/${BUCKET}/`)[1]
 
-  if (path) {
-    await supabaseAdmin.storage.from(BUCKET).remove([path])
+  const pathsToDelete: string[] = []
+  if (thumbStoragePath) {
+    pathsToDelete.push(thumbStoragePath)
+    // Also delete the full-size counterpart if it exists
+    if (thumbStoragePath.includes('_thumb.webp')) {
+      pathsToDelete.push(thumbStoragePath.replace('_thumb.webp', '_full.webp'))
+    }
+  }
+
+  if (pathsToDelete.length > 0) {
+    await supabaseAdmin.storage.from(BUCKET).remove(pathsToDelete)
   }
 
   const figure = await prisma.figure.findUnique({ where: { id: figureId }, select: { slug: true, images: true } })

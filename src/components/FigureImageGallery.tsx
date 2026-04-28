@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
+import { getFullImageUrl } from '@/lib/images'
 
 export function FigureImageGallery({ images, name }: { images: string[]; name: string }) {
   const [active, setActive] = useState(0)
@@ -16,8 +17,13 @@ export function FigureImageGallery({ images, name }: { images: string[]; name: s
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Main image */}
-      <div className="bg-muted border border-border rounded-2xl aspect-square relative overflow-hidden">
+      {/* Main image — click opens full-size in new tab */}
+      <a
+        href={getFullImageUrl(images[active])}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="bg-muted border border-border rounded-2xl aspect-square relative overflow-hidden block cursor-zoom-in"
+      >
         <Image
           src={images[active]}
           alt={name}
@@ -26,7 +32,7 @@ export function FigureImageGallery({ images, name }: { images: string[]; name: s
           sizes="(max-width: 768px) 100vw, 50vw"
           priority
         />
-      </div>
+      </a>
 
       {/* Thumbnails — only shown when there are multiple images */}
       {images.length > 1 && (
