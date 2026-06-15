@@ -2,24 +2,10 @@
 
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
-import { createClient } from '@/lib/supabase/server'
-
-async function requireAdmin() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not authenticated')
-  const adminEmail = process.env.ADMIN_EMAIL
-  if (!adminEmail || user.email !== adminEmail) throw new Error('Not authorized')
-}
-
-function toSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-}
+import { requireAdmin } from '@/lib/auth'
+import { toSlug } from '@/lib/utils'
+import { fetchEbayPrices } from '@/app/actions/prices'
+import * as cheerio from 'cheerio'
 
 export async function createFigure(formData: FormData) {
   await requireAdmin()
@@ -118,4 +104,21 @@ export async function deleteFigure(id: string) {
   revalidatePath('/admin')
   revalidatePath('/')
   revalidatePath(`/figures/${figure.slug}`)
+}
+
+export async function scrapeFigures(): Promise<{ imported: number; skipped: number; figures: number }> {
+  await requireAdmin()
+
+  const figures = await prisma.figure.findMany({ select: { id: true } })
+
+  let imported = 0
+  let skipped = 0
+
+  for (const figure of figures) {
+    const result = await fetchEbayPrices(figure.id, 3)
+    imported += result.imported
+    skipped += result.skipped
+  }
+
+  return { imported, skipped, figures: figures.length }
 }

@@ -111,14 +111,6 @@ async function CatalogContent({ searchParams }: { searchParams: Promise<Params> 
         />
         <div className="flex-1">
           <TypeToggle officialImage={officialImage} thirdPartyImage={thirdPartyImage} />
-          <div className="flex justify-center mb-4">
-            <a
-              href="/submit"
-              className="text-xs font-mono text-muted-foreground/50 hover:text-[#4a1258] transition-colors"
-            >
-              Don&apos;t see your figure? Submit it →
-            </a>
-          </div>
           {figures.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-center">
               <p className="text-4xl mb-4">🔍</p>

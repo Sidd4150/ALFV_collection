@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { AddFigureForm } from '@/components/admin/AddFigureForm'
 import { RescrapeLowPricesButton } from '@/components/admin/RescrapeLowPricesButton'
+import { ScrapeFiguresButton } from '@/components/admin/ScrapeFiguresButton'
 import { SubmissionActions } from '@/components/admin/SubmissionActions'
 import { AdminFigureList } from '@/components/admin/AdminFigureList'
 
@@ -70,6 +71,7 @@ async function AdminContent() {
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap shrink-0 pt-1">
+          <ScrapeFiguresButton />
           <RescrapeLowPricesButton />
           <AddFigureForm />
         </div>

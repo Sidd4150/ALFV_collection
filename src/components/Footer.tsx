@@ -10,7 +10,7 @@ export function Footer() {
 
         {/* Brand */}
         <div className="flex flex-col gap-3">
-          <span className="font-display text-5xl leading-none text-[#4a1258]">ALFV</span>
+          <span className="font-display text-5xl leading-none text-brand">ALFV</span>
           <p className="text-xs text-muted-foreground leading-relaxed max-w-[220px]">
             Action Legends Figure Vault. Track your S.H. Figuarts Dragon Ball collection & market prices.
           </p>
@@ -25,13 +25,13 @@ export function Footer() {
           <div className="flex gap-4 mt-2">
             <Link
               href="/feedback"
-              className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/50 hover:text-[#4a1258] transition-colors"
+              className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/50 hover:text-brand transition-colors"
             >
               Feedback
             </Link>
             <Link
               href="/submit"
-              className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/50 hover:text-[#4a1258] transition-colors"
+              className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/50 hover:text-brand transition-colors"
             >
               Submit a Figure
             </Link>

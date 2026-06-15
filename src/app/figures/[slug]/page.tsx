@@ -86,7 +86,7 @@ async function FigureDetailContent({
             {/* Badges + title */}
             <div>
               <div className="flex gap-2 mb-3 flex-wrap">
-                <Badge style={{ backgroundColor: '#4a1258' }} className="text-white">{figure.series}</Badge>
+                <Badge className="bg-brand text-white border-transparent">{figure.series}</Badge>
                 {figure.arc && <Badge variant="outline">{figure.arc}</Badge>}
                 {figure.isWebExclusive && <Badge variant="outline" className="border-yellow-500 text-yellow-600 dark:text-yellow-400">Web Exclusive</Badge>}
                 {figure.isRerelease && <Badge variant="outline" className="border-blue-500 text-blue-600 dark:text-blue-400">Re-release</Badge>}
@@ -119,7 +119,7 @@ async function FigureDetailContent({
                 <ul className="space-y-1">
                   {figure.accessories.map((acc: string) => (
                     <li key={acc} className="text-sm flex gap-2 text-muted-foreground">
-                      <span style={{ color: '#4a1258' }}>•</span> {acc}
+                      <span className="text-brand">•</span> {acc}
                     </li>
                   ))}
                 </ul>
@@ -130,7 +130,7 @@ async function FigureDetailContent({
             <div className="bg-card border border-border rounded-xl p-5 shadow-md">
               <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground/50 mb-2">Market Price</p>
               {medianPrice ? (
-                <p className="text-4xl font-mono font-bold mb-1 text-[#c9a040]">{formatPrice(medianPrice)}</p>
+                <p className="text-4xl font-mono font-bold mb-1 text-gold">{formatPrice(medianPrice)}</p>
               ) : (
                 <p className="text-2xl font-bold text-muted-foreground mb-1">No data yet</p>
               )}
@@ -171,8 +171,7 @@ async function FigureDetailContent({
                         href={s.sourceUrl!}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hover:underline truncate mr-4"
-                        style={{ color: '#4a1258' }}
+                        className="hover:underline truncate mr-4 text-brand"
                       >
                         {new Date(s.saleDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </a>

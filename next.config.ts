@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
   cacheComponents: true,
   skipMiddlewareUrlNormalize: true,
   skipTrailingSlashRedirect: true,

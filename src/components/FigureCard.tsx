@@ -6,7 +6,7 @@ import type { Figure } from '@/generated/prisma'
 export function FigureCard({ figure }: { figure: Figure }) {
   return (
     <Link href={`/figures/${figure.slug}`} className="group block">
-      <div className="relative rounded-lg overflow-hidden border border-border/50 shadow-lg hover:border-[#4a1258]/50 hover:shadow-[0_4px_24px_rgba(74,18,88,0.25)] transition-all duration-300 aspect-[3/4]">
+      <div className="relative rounded-lg overflow-hidden border border-border/50 shadow-lg hover:border-brand/50 hover:shadow-[0_4px_24px_var(--brand)] transition-all duration-300 aspect-[3/4]">
 
         {/* Full-bleed image */}
         {figure.images[0] ? (
@@ -44,11 +44,11 @@ export function FigureCard({ figure }: { figure: Figure }) {
           <p className="text-[10px] font-mono text-white/45 uppercase tracking-[0.12em] mb-0.5 truncate">
             {figure.character}
           </p>
-          <p className="text-sm font-semibold leading-snug text-white line-clamp-2 group-hover:text-[#c9a040] transition-colors duration-200">
+          <p className="text-sm font-semibold leading-snug text-white line-clamp-2 group-hover:text-gold transition-colors duration-200">
             {figure.name}
           </p>
           {figure.msrp && (
-            <p className="text-[11px] font-mono mt-1.5 text-[#c9a040]/80">
+            <p className="text-[11px] font-mono mt-1.5 text-gold/80">
               {formatPrice(figure.msrp)}
             </p>
           )}

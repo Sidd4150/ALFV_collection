@@ -85,7 +85,7 @@ export function CollectionGrid({ owned, wishlist, priceByFigure }: Props) {
               <h2 className="font-display text-3xl tracking-wide">
                 Owned <span className="text-muted-foreground/50 font-display text-xl">({owned.length})</span>
               </h2>
-              <Link href="/submit" className="text-xs font-mono text-muted-foreground/50 hover:text-[#4a1258] transition-colors hidden sm:block">
+              <Link href="/submit" className="inline-flex items-center gap-1.5 rounded-lg border border-purple-900/40 bg-purple-900/10 px-3 py-1.5 text-xs font-semibold text-purple-900 transition-all hover:bg-purple-900/20 hover:border-purple-900/60 dark:text-purple-200 dark:border-purple-300/40 dark:bg-purple-400/15 dark:hover:bg-purple-400/25 hidden sm:inline-flex">
                 Don&apos;t see your figure? Submit it →
               </Link>
             </div>
@@ -214,7 +214,7 @@ function CollectionCard({
   return (
     <div className="relative">
       <Link href={`/figures/${entry.figure.slug}`} className="group block">
-        <div className="relative rounded-lg overflow-hidden border border-border/50 shadow-lg hover:border-[#4a1258]/50 hover:shadow-[0_4px_24px_rgba(74,18,88,0.25)] transition-all duration-300 aspect-[3/4]">
+        <div className="relative rounded-lg overflow-hidden border border-border/50 shadow-lg hover:border-brand/50 hover:shadow-[0_4px_24px_var(--brand)] transition-all duration-300 aspect-[3/4]">
           {entry.figure.images[0] ? (
             <Image
               src={entry.figure.images[0]}
@@ -254,10 +254,10 @@ function CollectionCard({
           {/* Bottom info */}
           <div className="absolute bottom-0 left-0 right-0 p-3">
             <p className="text-[10px] font-mono text-white/45 uppercase tracking-[0.12em] mb-0.5 truncate">{entry.figure.character}</p>
-            <p className="text-sm font-semibold leading-snug text-white line-clamp-2 group-hover:text-[#c9a040] transition-colors duration-200">{entry.figure.name}</p>
+            <p className="text-sm font-semibold leading-snug text-white line-clamp-2 group-hover:text-gold transition-colors duration-200">{entry.figure.name}</p>
             <div className="mt-1.5 flex items-center justify-between gap-1">
               {marketPrice ? (
-                <span className="text-[11px] font-mono text-[#c9a040]/80">{formatPrice(marketPrice)}</span>
+                <span className="text-[11px] font-mono text-gold/80">{formatPrice(marketPrice)}</span>
               ) : displayPrice ? (
                 <span className="text-[11px] font-mono text-white/50">{formatPrice(displayPrice)}</span>
               ) : (

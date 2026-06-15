@@ -45,7 +45,7 @@ export function FeedbackForm({ type = 'feedback', placeholder = 'Bugs, missing f
         placeholder="Email (optional)"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        className="text-sm bg-card/50 border-border/50 focus:border-[#4a1258]/50"
+        className="text-sm bg-card/50 border-border/50 focus:border-brand/50"
       />
       <textarea
         placeholder={placeholder}
@@ -53,14 +53,14 @@ export function FeedbackForm({ type = 'feedback', placeholder = 'Bugs, missing f
         onChange={(e) => setMessage(e.target.value)}
         required
         rows={compact ? 3 : 5}
-        className="w-full rounded-md border border-border/50 bg-card/50 px-3 py-2 text-sm placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#4a1258]/40 focus:border-[#4a1258]/50 resize-none transition-colors"
+        className="w-full rounded-md border border-border/50 bg-card/50 px-3 py-2 text-sm placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand/40 focus:border-brand/50 resize-none transition-colors"
       />
       <div className="flex items-center gap-3">
         <Button
           type="submit"
           size="sm"
           disabled={status === 'sending'}
-          className="bg-[#4a1258] hover:bg-[#5d1870] text-white text-xs font-mono uppercase tracking-wider"
+          className="bg-brand hover:bg-brand/90 text-white text-xs font-mono uppercase tracking-wider"
         >
           {status === 'sending' ? 'Sending…' : 'Send'}
         </Button>

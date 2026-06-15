@@ -29,45 +29,39 @@ async function CollectionContent({ searchParams }: { searchParams: Promise<{ wel
   const displayName = user.user_metadata?.username ?? user.email?.split('@')[0] ?? 'Collector'
 
   const ownedFigureIds = owned.map((e) => e.figureId)
-  const priceSales = ownedFigureIds.length > 0
-    ? await prisma.priceSale.findMany({
+
+  // Fetch market price snapshots for owned figures
+  const snapshots = ownedFigureIds.length > 0
+    ? await prisma.figureSnapshot.findMany({
         where: { figureId: { in: ownedFigureIds } },
-        orderBy: { saleDate: 'asc' },
-        select: { figureId: true, price: true, saleDate: true },
+        orderBy: { snapshotAt: 'asc' },
+        select: { figureId: true, marketPrice: true, snapshotAt: true },
       })
     : []
 
-  const median = (arr: number[]) => {
-    const s = [...arr].sort((a, b) => a - b)
-    const m = Math.floor(s.length / 2)
-    return s.length % 2 !== 0 ? s[m] : (s[m - 1] + s[m]) / 2
+  // Group snapshots by month, carry forward each figure's latest price
+  const snapByMonth = new Map<string, Map<string, number>>()
+  for (const s of snapshots) {
+    const month = s.snapshotAt.toISOString().slice(0, 7)
+    if (!snapByMonth.has(month)) snapByMonth.set(month, new Map())
+    snapByMonth.get(month)!.set(s.figureId, s.marketPrice)
   }
+  const sortedMonths = Array.from(snapByMonth.keys()).sort()
+  const lastKnown = new Map<string, number>()
+  const chartSales = sortedMonths.map((month) => {
+    for (const [figureId, price] of snapByMonth.get(month)!) {
+      lastKnown.set(figureId, price)
+    }
+    const total = Array.from(lastKnown.values()).reduce((sum, v) => sum + v, 0)
+    return { price: Math.round(total * 100) / 100, saleDate: `${month}-01` }
+  })
 
-  const salesByFigure = new Map<string, number[]>()
-  for (const s of priceSales) {
-    if (!salesByFigure.has(s.figureId)) salesByFigure.set(s.figureId, [])
-    salesByFigure.get(s.figureId)!.push(s.price)
-  }
-  const marketValue = Array.from(salesByFigure.values()).reduce((sum, prices) => sum + median(prices), 0)
+  // Market value = latest snapshot total (same as chart's last data point)
+  const marketValue = chartSales.length > 0 ? chartSales[chartSales.length - 1].price : 0
   const priceByFigure: Record<string, number> = {}
-  for (const [figureId, prices] of salesByFigure) {
-    priceByFigure[figureId] = median(prices)
+  for (const [figureId, price] of lastKnown) {
+    priceByFigure[figureId] = price
   }
-
-  const byMonth = new Map<string, Map<string, number[]>>()
-  for (const s of priceSales) {
-    const month = s.saleDate.toISOString().slice(0, 7)
-    if (!byMonth.has(month)) byMonth.set(month, new Map())
-    const figMap = byMonth.get(month)!
-    if (!figMap.has(s.figureId)) figMap.set(s.figureId, [])
-    figMap.get(s.figureId)!.push(s.price)
-  }
-  const chartSales = Array.from(byMonth.entries())
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([month, figMap]) => ({
-      price: Array.from(figMap.values()).reduce((sum, prices) => sum + median(prices), 0),
-      saleDate: `${month}-01`,
-    }))
 
   return (
     <div className="min-h-screen bg-background">
@@ -95,10 +89,10 @@ async function CollectionContent({ searchParams }: { searchParams: Promise<{ wel
           {[
             { label: 'Owned', value: owned.length, color: 'text-green-500' },
             { label: 'Wishlisted', value: wishlist.length, color: 'text-yellow-500' },
-            { label: 'Market Value', value: marketValue > 0 ? formatPrice(marketValue) : '—', color: '' , style: { color: '#c9a040' } },
+            { label: 'Market Value', value: marketValue > 0 ? formatPrice(marketValue) : '—', color: 'text-gold' },
           ].map((stat) => (
             <div key={stat.label} className="bg-card border border-border/50 rounded-lg p-4 text-center shadow-md w-36">
-              <p className={`text-2xl font-mono font-bold ${stat.color}`} style={(stat as { style?: React.CSSProperties }).style}>{stat.value}</p>
+              <p className={`text-2xl font-mono font-bold ${stat.color}`}>{stat.value}</p>
               <p className="text-[10px] font-mono uppercase tracking-[0.12em] text-muted-foreground/50 mt-1">{stat.label}</p>
             </div>
           ))}
@@ -107,8 +101,7 @@ async function CollectionContent({ searchParams }: { searchParams: Promise<{ wel
         {/* Market value chart */}
         {chartSales.length > 0 && (
           <div className="bg-card border border-border rounded-xl p-5 mb-10 shadow-md">
-            <h2 className="text-base font-bold mb-4">Collection Market Value Over Time</h2>
-            <PriceChart sales={chartSales} label="Total Collection Market Value" />
+            <PriceChart sales={chartSales} label="Collection Value" />
           </div>
         )}
 
@@ -121,7 +114,7 @@ async function CollectionContent({ searchParams }: { searchParams: Promise<{ wel
               Browse the catalog and add figures to start tracking.
             </p>
             <div className="flex gap-3 justify-center flex-wrap">
-              <Button asChild className="text-white font-bold" style={{ backgroundColor: '#4a1258' }}>
+              <Button asChild className="text-white font-bold bg-brand hover:bg-brand/90">
                 <Link href="/">Browse Catalog</Link>
               </Button>
               <Button asChild variant="outline">

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, Syne, Geist_Mono } from "next/font/google";
+import { Bebas_Neue, Barlow, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
@@ -15,8 +15,8 @@ const bebasNeue = Bebas_Neue({
   display: "swap",
 });
 
-const syne = Syne({
-  variable: "--font-syne",
+const barlow = Barlow({
+  variable: "--font-barlow",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
   display: "swap",
@@ -45,7 +45,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${bebasNeue.variable} ${syne.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${bebasNeue.variable} ${barlow.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
         <script

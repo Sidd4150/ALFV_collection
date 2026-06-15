@@ -20,15 +20,15 @@ export function Navbar() {
   return (
     <nav className="bg-background/95 backdrop-blur-md sticky top-0 z-50">
       {/* Purple top accent stripe */}
-      <div className="h-[2px] w-full bg-[#4a1258]" />
+      <div className="h-[2px] w-full bg-brand" />
 
-      <div className="border-b border-border/40 shadow-[0_1px_20px_rgba(74,18,88,0.15)]">
+      <div className="border-b border-border/40 shadow-[0_1px_20px_var(--brand)/15]">
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group" onClick={() => setMobileOpen(false)}>
             <Image src="/favicon.png" alt="ALFV" width={32} height={32} className="object-contain opacity-90 group-hover:opacity-100 transition-opacity" priority />
-            <span className="font-display text-3xl leading-none tracking-wider text-[#4a1258]">ALFV</span>
+            <span className="font-display text-3xl leading-none tracking-wider text-brand">ALFV</span>
           </Link>
 
           {/* Desktop nav */}
@@ -39,7 +39,7 @@ export function Navbar() {
                 href={l.href}
                 className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors group"
               >
-                <span className="text-[10px] font-mono text-muted-foreground/40 group-hover:text-[#4a1258]/70 transition-colors tabular-nums">
+                <span className="text-[10px] font-mono text-muted-foreground/40 group-hover:text-brand/70 transition-colors tabular-nums">
                   0{i + 1}
                 </span>
                 {l.label}
@@ -74,7 +74,7 @@ export function Navbar() {
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-3 py-2.5 px-3 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors group"
               >
-                <span className="text-[10px] font-mono text-muted-foreground/30 group-hover:text-[#4a1258]/60 transition-colors">0{i + 1}</span>
+                <span className="text-[10px] font-mono text-muted-foreground/30 group-hover:text-brand/60 transition-colors">0{i + 1}</span>
                 <span className="text-sm font-medium">{l.label}</span>
               </Link>
             ))}

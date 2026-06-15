@@ -166,8 +166,7 @@ export default function SubmitPage() {
             <Button
               type="submit"
               disabled={isPending}
-              className="w-full font-bold text-white"
-              style={{ backgroundColor: '#4a1258' }}
+              className="w-full font-bold text-white bg-brand hover:bg-brand/90"
             >
               {isPending ? 'Submitting…' : 'Submit Figure'}
             </Button>

@@ -53,18 +53,24 @@ export function CatalogGrid({ figures, page, totalPages, searchParams }: Props) 
         <div className="hidden sm:block">
           <CatalogPagination page={page} totalPages={totalPages} searchParams={searchParams} className="mt-0" />
         </div>
-        <div className="sm:absolute sm:right-0">
+        <div className="sm:absolute sm:right-0 flex items-center gap-2">
+          <a
+            href="/submit"
+            className="inline-flex items-center gap-1.5 rounded-md border border-purple-900/40 bg-purple-900/10 px-3 py-1.5 text-xs font-semibold text-purple-900 transition-all hover:bg-purple-900/20 hover:border-purple-900/60 dark:text-purple-200 dark:border-purple-300/40 dark:bg-purple-400/15 dark:hover:bg-purple-400/25"
+          >
+            Submit a Figure →
+          </a>
           {selectMode ? (
             <button
               onClick={exitSelectMode}
-              className="text-xs font-mono text-muted-foreground/60 hover:text-muted-foreground transition-colors px-3 py-1.5 border border-border rounded-md"
+              className="text-sm font-semibold text-muted-foreground/60 hover:text-muted-foreground transition-colors px-4 py-2 border border-border rounded-md"
             >
               Cancel
             </button>
           ) : (
             <button
               onClick={() => setSelectMode(true)}
-              className="text-xs font-mono text-muted-foreground/50 hover:text-muted-foreground transition-colors px-3 py-1.5 border border-border rounded-md"
+              className="text-sm font-semibold text-muted-foreground/50 hover:text-muted-foreground transition-colors px-4 py-2 border border-border rounded-md"
             >
               Select Multiple
             </button>
@@ -84,14 +90,14 @@ export function CatalogGrid({ figures, page, totalPages, searchParams }: Props) 
                   <div
                     onClick={() => toggle(figure.id)}
                     className={`absolute inset-0 rounded-lg z-10 cursor-pointer transition-all duration-200 ${
-                      isSelected ? 'ring-2 ring-[#4a1258] shadow-[0_0_0_2px_rgba(74,18,88,0.5)]' : ''
+                      isSelected ? 'ring-2 ring-brand shadow-[0_0_0_2px_var(--brand)]' : ''
                     }`}
                   />
                   {/* Checkbox */}
                   <div
                     className={`absolute top-2 right-2 z-20 w-5 h-5 rounded-sm border-2 flex items-center justify-center pointer-events-none transition-all duration-150 ${
                       isSelected
-                        ? 'bg-[#4a1258] border-[#4a1258]'
+                        ? 'bg-brand border-brand'
                         : 'bg-black/50 border-white/40'
                     }`}
                   >
@@ -127,8 +133,7 @@ export function CatalogGrid({ figures, page, totalPages, searchParams }: Props) 
               <button
                 onClick={handleAdd}
                 disabled={isPending}
-                className="text-sm font-bold px-4 py-1.5 rounded-full text-white transition-opacity disabled:opacity-50"
-                style={{ backgroundColor: '#4a1258' }}
+                className="text-sm font-bold px-4 py-1.5 rounded-full text-white transition-opacity disabled:opacity-50 bg-brand"
               >
                 {isPending ? 'Adding…' : 'Add to Vault'}
               </button>

@@ -38,7 +38,7 @@ function LoginForm() {
   return (
     <div className="w-full max-w-sm">
       <div className="text-center mb-8">
-        <Link href="/" className="text-3xl font-black" style={{ color: '#4a1258' }}>ALFV</Link>
+        <Link href="/" className="text-3xl font-black text-brand">ALFV</Link>
         <h1 className="text-2xl font-bold mt-4 mb-1">Welcome back</h1>
         <p className="text-muted-foreground text-sm">Sign in to your collection</p>
       </div>
@@ -75,8 +75,7 @@ function LoginForm() {
           {error && <p className="text-sm text-red-500">{error}</p>}
           <Button
             type="submit"
-            className="w-full text-white font-bold"
-            style={{ backgroundColor: '#4a1258' }}
+            className="w-full text-white font-bold bg-brand hover:bg-brand/90"
             disabled={loading}
           >
             {loading ? 'Signing in…' : 'Sign In'}
@@ -86,7 +85,7 @@ function LoginForm() {
 
       <p className="text-center text-sm text-muted-foreground mt-4">
         No account?{' '}
-        <Link href={`/auth/signup${redirectTo !== '/' ? `?redirectTo=${redirectTo}` : ''}`} className="hover:underline font-medium" style={{ color: '#4a1258' }}>
+        <Link href={`/auth/signup${redirectTo !== '/' ? `?redirectTo=${redirectTo}` : ''}`} className="hover:underline font-medium text-brand" >
           Sign up
         </Link>
       </p>
